@@ -12,59 +12,43 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.spacegdx.game.Ships.BasicShip;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
 
 public class Game extends ApplicationAdapter {
-	Texture ship;
 	Texture background;
-	Texture laserR, laserL;
 	Texture enemy;
 	Texture boom;
 	OrthographicCamera camera;
 	SpriteBatch sBatch;
-	Rectangle shipRec;
 	Vector3 touchPos;
-	ArrayList<Rectangle> lasersR;
-	ArrayList<Rectangle> lasersL;
+	Ship ship;
 	ArrayList<Rectangle> enemies;
-	ArrayList<Flash> booms;
+	static ArrayList<Flash> booms;
 	BitmapFont font;
 	long lastEnemySpawnTime;
-	long lastLaserFireTime;
-	int speed;
-	int eSpeed;
-	long enemySpawnDelay;
-	int score;
+	static public int eSpeed;
+	static public long enemySpawnDelay;
+	static public int score;
 	
 	@Override
 	public void create(){
-		ship = new Texture("ship.png");
 		background = new Texture("background.png");
-		laserR = new Texture("laserR.png");
-		laserL = new Texture("laserL.png");
 		enemy = new Texture("enemy.png");
 		boom = new Texture("boom.png");
 		lastEnemySpawnTime = 0;
-		lastLaserFireTime = 0;
-		speed = 300;
 		eSpeed = 100;
 		enemySpawnDelay = 1000000000;
 		score = 0;
 		camera =  new OrthographicCamera();
 		camera.setToOrtho(false, 480, 800);
 		sBatch =  new SpriteBatch();
-		shipRec =  new Rectangle();
-		shipRec.width = 28*2;
-		shipRec.height = 31*2;
-		shipRec.x = 480 / 2 - 64 / 2;
-		shipRec.y = 100;
-		lasersR = new ArrayList();
-		lasersL = new ArrayList();
 		enemies = new ArrayList();
 		booms = new ArrayList();
+		ship =  new BasicShip();
 		touchPos = new Vector3();
 		font = new BitmapFont();
 		Color c = new Color(0,1,1,1);
@@ -87,15 +71,12 @@ public class Game extends ApplicationAdapter {
 		if(Gdx.input.isTouched()){
 			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touchPos);
-			shipRec.x = touchPos.x - shipRec.width/2;
-			shipRec.y = touchPos.y + 64;
-			if(TimeUtils.timeSinceNanos(lastLaserFireTime) > 375000000){  //10^9 = 1 sec
-				spawnLaser();
-			}
+			ship.moveTo(touchPos.x, touchPos.y);
+			ship.spawnLaser();
+
 		}
 
-		iterateLaser(lasersR);
-		iterateLaser(lasersL);
+		ship.iterateLaser(enemies);
 		iterateEnemy(enemies);
 		iterateBoom(booms);
 
@@ -103,13 +84,8 @@ public class Game extends ApplicationAdapter {
 		sBatch.begin();
 
 		sBatch.draw(background, 0,0);
-		sBatch.draw(ship, shipRec.x, shipRec.y, shipRec.width, shipRec.height);
-		for(Rectangle laser: lasersR){
-			sBatch.draw(laserR, laser.x, laser.y);
-		}
-		for(Rectangle laser: lasersL){
-			sBatch.draw(laserL, laser.x, laser.y);
-		}
+		ship.draw(sBatch);
+		ship.drawLasers(sBatch);
 		for(Rectangle enemy: enemies){
 			sBatch.draw(this.enemy,enemy.x, enemy.y);
 		}
@@ -125,8 +101,6 @@ public class Game extends ApplicationAdapter {
 	public void dispose() {
 		ship.dispose();
 		background.dispose();
-		laserR.dispose();
-		laserL.dispose();
 		enemy.dispose();
 	}
 
@@ -191,14 +165,13 @@ public class Game extends ApplicationAdapter {
 				iter.remove();
 				enemySpawnDelay = (enemySpawnDelay != 0) ? enemySpawnDelay -= 10000000: 10000000;
 				eSpeed += 10;
-				create();
 			}else if(enemy.overlaps(shipRec)){
 				create();
 			}
 		}
 	}
 
-	public void spawnBoom(float x, float y){
+	public static void spawnBoom(float x, float y){
 		Rectangle boom = new Rectangle();
 		boom.x = x + 24;
 		boom.y = y - 24;
