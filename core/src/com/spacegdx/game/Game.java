@@ -22,6 +22,7 @@ public class Game extends ApplicationAdapter {
 	Texture background;
 	Texture laserR, laserL;
 	Texture enemy;
+	Texture boom;
 	OrthographicCamera camera;
 	SpriteBatch sBatch;
 	Rectangle shipRec;
@@ -29,12 +30,14 @@ public class Game extends ApplicationAdapter {
 	ArrayList<Rectangle> lasersR;
 	ArrayList<Rectangle> lasersL;
 	ArrayList<Rectangle> enemies;
+	ArrayList<Flash> booms;
 	BitmapFont font;
 	long lastEnemySpawnTime;
 	long lastLaserFireTime;
-	int speed = 300;
-	long enemySpawnDelay = 1000000000;
-	int score = 0;
+	int speed;
+	int eSpeed;
+	long enemySpawnDelay;
+	int score;
 	
 	@Override
 	public void create(){
@@ -43,17 +46,25 @@ public class Game extends ApplicationAdapter {
 		laserR = new Texture("laserR.png");
 		laserL = new Texture("laserL.png");
 		enemy = new Texture("enemy.png");
+		boom = new Texture("boom.png");
+		lastEnemySpawnTime = 0;
+		lastLaserFireTime = 0;
+		speed = 300;
+		eSpeed = 100;
+		enemySpawnDelay = 1000000000;
+		score = 0;
 		camera =  new OrthographicCamera();
 		camera.setToOrtho(false, 480, 800);
 		sBatch =  new SpriteBatch();
 		shipRec =  new Rectangle();
-		shipRec.width = 64;
-		shipRec.height = 128;
+		shipRec.width = 28*2;
+		shipRec.height = 31*2;
 		shipRec.x = 480 / 2 - 64 / 2;
 		shipRec.y = 100;
 		lasersR = new ArrayList();
 		lasersL = new ArrayList();
 		enemies = new ArrayList();
+		booms = new ArrayList();
 		touchPos = new Vector3();
 		font = new BitmapFont();
 		Color c = new Color(0,1,1,1);
@@ -86,6 +97,7 @@ public class Game extends ApplicationAdapter {
 		iterateLaser(lasersR);
 		iterateLaser(lasersL);
 		iterateEnemy(enemies);
+		iterateBoom(booms);
 
 		//-----------------------------------------------------------------------------------------
 		sBatch.begin();
@@ -100,11 +112,22 @@ public class Game extends ApplicationAdapter {
 		}
 		for(Rectangle enemy: enemies){
 			sBatch.draw(this.enemy,enemy.x, enemy.y);
-
+		}
+		for(Flash f: booms){
+			sBatch.draw(boom, f.r.x, f.r.y);
 		}
 		font.draw(sBatch, "Score: " + score, 0, 800);
 		sBatch.end();
 		//-----------------------------------------------------------------------------------------
+	}
+
+	@Override
+	public void dispose() {
+		ship.dispose();
+		background.dispose();
+		laserR.dispose();
+		laserL.dispose();
+		enemy.dispose();
 	}
 
 	public void spawnLaser(){
@@ -132,15 +155,18 @@ public class Game extends ApplicationAdapter {
 			Rectangle laser = iter.next();
 			Iterator<Rectangle> iterE = enemies.iterator();
 			while(iterE.hasNext()) {
-				if (laser.overlaps(iterE.next())) {
+				Rectangle enemy = iterE.next();
+				if (laser.overlaps(enemy)) {
+					spawnBoom(enemy.x - 17, enemy.y - 7);
 					iterE.remove();
 					iter.remove();
-					enemySpawnDelay = (enemySpawnDelay != 0) ? enemySpawnDelay -= 10000000: 0;
+					enemySpawnDelay = (enemySpawnDelay != 0) ? enemySpawnDelay -= 10000000: 10000000;
+					eSpeed += 10;
 					score++;
 				}
 			}
 			laser.y += speed *Gdx.graphics.getDeltaTime();
-			if(laser.y > 814){
+			if(laser.y > 821){
 				iter.remove();
 			}
 		}
@@ -160,10 +186,34 @@ public class Game extends ApplicationAdapter {
 		Iterator<Rectangle> iter = enemies.iterator();
 		while(iter.hasNext()){
 			Rectangle enemy = iter.next();
-			enemy.y -= 100 *Gdx.graphics.getDeltaTime();
+			enemy.y -= eSpeed *Gdx.graphics.getDeltaTime();
 			if(enemy.y < 0){
 				iter.remove();
-				enemySpawnDelay = (enemySpawnDelay != 0) ? enemySpawnDelay -= 10000000: 0;
+				enemySpawnDelay = (enemySpawnDelay != 0) ? enemySpawnDelay -= 10000000: 10000000;
+				eSpeed += 10;
+				create();
+			}else if(enemy.overlaps(shipRec)){
+				create();
+			}
+		}
+	}
+
+	public void spawnBoom(float x, float y){
+		Rectangle boom = new Rectangle();
+		boom.x = x + 24;
+		boom.y = y - 24;
+		boom.width = 48;
+		boom.height = 48;
+		Flash f = new Flash(boom);
+		booms.add(f);
+	}
+
+	public void iterateBoom(ArrayList<Flash> booms){
+		Iterator<Flash> iter = booms.iterator();
+		while(iter.hasNext()){
+			Flash f = iter.next();
+			if(f.time < TimeUtils.nanoTime()){
+				iter.remove();
 			}
 		}
 	}
