@@ -33,6 +33,7 @@ public class Game extends ApplicationAdapter {
 	static public int eSpeed;
 	static public long enemySpawnDelay;
 	static public int score;
+	float backgroundY;
 	
 	@Override
 	public void create(){
@@ -79,11 +80,13 @@ public class Game extends ApplicationAdapter {
 		ship.iterateLaser(enemies);
 		iterateEnemy(enemies);
 		iterateBoom(booms);
+		iterateBackground();
 
 		//-----------------------------------------------------------------------------------------
 		sBatch.begin();
 
-		sBatch.draw(background, 0,0);
+		sBatch.draw(background, 0, backgroundY);
+		sBatch.draw(background, 0, backgroundY + 800);
 		ship.draw(sBatch);
 		ship.drawLasers(sBatch);
 		for(Rectangle enemy: enemies){
@@ -104,55 +107,12 @@ public class Game extends ApplicationAdapter {
 		enemy.dispose();
 	}
 
-	public void spawnLaser(){
-		Rectangle laserL = new Rectangle();
-		Rectangle laserR = new Rectangle();
-
-		laserR.x = shipRec.x +shipRec.width - 6 - (shipRec.width/2) / 5;
-		laserR.y = shipRec.y + shipRec.height/5;
-		laserR.height = 8;
-		laserR.width = 6;
-		lasersR.add(laserR);
-
-		laserL.x = shipRec.x + (shipRec.width/2) / 5;
-		laserL.y = shipRec.y + shipRec.height/5;
-		laserL.height = 8;
-		laserL.width = 6;
-		lasersL.add(laserL);
-
-		lastLaserFireTime = TimeUtils.nanoTime();
-	}
-
-	public void iterateLaser(ArrayList<Rectangle> lasers){
-		Iterator<Rectangle> iter = lasers.iterator();
-		while(iter.hasNext()){
-			Rectangle laser = iter.next();
-			Iterator<Rectangle> iterE = enemies.iterator();
-			while(iterE.hasNext()) {
-				Rectangle enemy = iterE.next();
-				if (laser.overlaps(enemy)) {
-					spawnBoom(enemy.x - 17, enemy.y - 7);
-					iterE.remove();
-					iter.remove();
-					enemySpawnDelay = (enemySpawnDelay != 0) ? enemySpawnDelay -= 10000000: 10000000;
-					eSpeed += 10;
-					score++;
-				}
-			}
-			laser.y += speed *Gdx.graphics.getDeltaTime();
-			if(laser.y > 821){
-				iter.remove();
-			}
-		}
-	}
-
 	public void spawnEnemy(){
 		Rectangle enemy = new Rectangle();
-		enemy.x = MathUtils.random(32,480-64);
-		enemy.y = 800;
+
 		enemy.width = 34;
 		enemy.height = 14;
-		enemies.add(enemy);
+
 		lastEnemySpawnTime = TimeUtils.nanoTime();
 	}
 
@@ -160,14 +120,20 @@ public class Game extends ApplicationAdapter {
 		Iterator<Rectangle> iter = enemies.iterator();
 		while(iter.hasNext()){
 			Rectangle enemy = iter.next();
-			enemy.y -= eSpeed *Gdx.graphics.getDeltaTime();
+			enemy.y -= eSpeed * Gdx.graphics.getDeltaTime();
 			if(enemy.y < 0){
 				iter.remove();
 				enemySpawnDelay = (enemySpawnDelay != 0) ? enemySpawnDelay -= 10000000: 10000000;
 				eSpeed += 10;
-			}else if(enemy.overlaps(shipRec)){
+			}else if(enemy.overlaps(ship.getHitbox())){
 				create();
 			}
+		}
+	}
+	public void iterateBackground(){
+		backgroundY -= 1;
+		if(backgroundY < -800){
+			backgroundY = 0;
 		}
 	}
 

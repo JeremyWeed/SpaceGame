@@ -22,7 +22,7 @@ public class BasicShip extends Ship {
     public long lastLaserFireTime, laserFireDelay;
 
     public BasicShip(){
-        super(new Texture("ship.png"), 28 * 2, 31 * 2);
+        super(new Texture("ship.png"), 28 * 2, 31 * 2, 6, 26);
         lasersR = new ArrayList();
         lasersL = new ArrayList();
         laserR = new Texture("laserR.png");
@@ -32,11 +32,11 @@ public class BasicShip extends Ship {
     }
 
     public void moveTo(float x, float y){
-        hitbox.x = x;
-        hitbox.y = y + 64;
+        hitbox.x = x - hitbox.width/2;
+        hitbox.y = y - hitbox.height/2 + 64;
     }
     public void draw(SpriteBatch sb){
-        sb.draw(super.t, super.hitbox.x - width/2, super.hitbox.y - height/2);
+        sb.draw(super.t, super.hitbox.x + hitbox.width/2 - width/2, super.hitbox.y + hitbox.height/2 - height/2 + 4, width, height);
     }
     public void drawLasers(SpriteBatch sb){
         for(Rectangle laser: lasersR){
@@ -51,14 +51,14 @@ public class BasicShip extends Ship {
             Rectangle laserL = new Rectangle();
             Rectangle laserR = new Rectangle();
 
-            laserR.x = hitbox.x - (width * 2) / 5;
-            laserR.y = hitbox.y;
+            laserR.x = hitbox.x + (width * 2) / 5;
+            laserR.y = hitbox.y + 4;
             laserR.height = 8;
             laserR.width = 6;
             lasersR.add(laserR);
 
-            laserL.x = hitbox.x + (width * 2) / 5;
-            laserL.y = hitbox.y;
+            laserL.x = hitbox.x - (width * 2) / 5;
+            laserL.y = hitbox.y + 4;
             laserL.height = 8;
             laserL.width = 6;
             lasersL.add(laserL);
@@ -78,13 +78,13 @@ public class BasicShip extends Ship {
                     Game.spawnBoom(enemy.x - 17, enemy.y - 7);
                     iterE.remove();
                     iter.remove();
-                    Game.enemySpawnDelay = (Game.enemySpawnDelay != 0) ? Game.enemySpawnDelay -= 10000000: 10000000;
+                    Game.enemySpawnDelay = (Game.enemySpawnDelay != 0) ? Game.enemySpawnDelay -= 10000000: 50000000;
                     Game.eSpeed += 5;
                     Game.score++;
                 }
             }
             laser.y += laserSpeed * Gdx.graphics.getDeltaTime();
-            if(laser.y > 800){
+            if(laser.y > 821){
                 iter.remove();
             }
         }
@@ -99,13 +99,13 @@ public class BasicShip extends Ship {
                     Game.spawnBoom(enemy.x - 17, enemy.y - 7);
                     iterE.remove();
                     iter.remove();
-                    Game.enemySpawnDelay = (Game.enemySpawnDelay != 0) ? Game.enemySpawnDelay -= 10000000: 10000000;
+                    Game.enemySpawnDelay = (Game.enemySpawnDelay != 0) ? Game.enemySpawnDelay -= 10000000: 50000000;
                     Game.eSpeed += 5;
                     Game.score++;
                 }
             }
             laser.y += laserSpeed * Gdx.graphics.getDeltaTime();
-            if(laser.y > 800){
+            if(laser.y > 821){
                 iter.remove();
             }
         }

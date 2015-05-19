@@ -16,11 +16,11 @@ public abstract class Ship {
     public Rectangle hitbox;
 
 
-    public Ship(Texture t, float width, float height){
+    public Ship(Texture t, float width, float height, float recX, float recY){
         this.t = t;
         this.width = width;
         this.height = height;
-        hitbox = new Rectangle( width/2 + 480/2, height/2 + 100, 2, 2);
+        hitbox = new Rectangle( width/2 + 480/2 - recX/2, height/2 + 100 - recY/2, recX, recY);
     }
     public abstract void moveTo(float x, float y);
     public abstract void draw(SpriteBatch sb);
