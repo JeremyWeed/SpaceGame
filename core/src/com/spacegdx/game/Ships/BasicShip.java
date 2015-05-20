@@ -23,7 +23,7 @@ public class BasicShip extends Ship {
     public long lastLaserFireTime, laserFireDelay;
 
     public BasicShip(Game game){
-        super(new Texture("ship.png"), 28 * 2, 31 * 2, 6, 26, game);
+        super(new Texture("ship.png"), 28 * 2, 31 * 2, 12, 52, game);
         lasersR = new ArrayList();
         lasersL = new ArrayList();
         laserR = new Texture("laserR.png");

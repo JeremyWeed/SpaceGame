@@ -15,6 +15,7 @@ public class EnemyHandler {
     int speed;
     long spawnDelay;
     long lastSpawnTime;
+    long speedConst;
     Game game;
 
     public EnemyHandler(Game game){
@@ -22,6 +23,7 @@ public class EnemyHandler {
         this.game = game;
         speed = 100;
         spawnDelay = 1000000000;
+        speedConst = TimeUtils.nanoTime();
     }
 
     public void iterate(){
@@ -37,10 +39,11 @@ public class EnemyHandler {
             Enemy enemy = iter.next();
             if(enemy.hitbox.y < 0){
                 iter.remove();
-                speed += 5;
-                spawnDelay *= .95;
+                speed += 2;
+                spawnDelay *= Math.pow(.95,  (TimeUtils.timeSinceNanos(speedConst) / Math.pow(10, 9)));
+                speedConst = TimeUtils.nanoTime();
             }else if(enemy.hitbox.overlaps(game.ship.getHitbox())){
-                game.create();
+                game.endGame();
             }else{
                 enemy.move();
             }
@@ -64,8 +67,9 @@ public class EnemyHandler {
         try{
             enemies.remove(e);
             game.spawnBoom(e.hitbox.x - e.width/2, e.hitbox.y + e.height/2);
-            speed += 5;
-            spawnDelay *= .95;
+            speed += 2;
+            spawnDelay *= Math.pow(.95,  (TimeUtils.timeSinceNanos(speedConst) / Math.pow(10, 9)));
+            speedConst = TimeUtils.nanoTime();
             Game.score++;
         }catch(Exception ex){
             //don't do anything

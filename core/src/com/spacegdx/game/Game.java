@@ -2,6 +2,7 @@ package com.spacegdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -27,6 +28,8 @@ public class Game extends ApplicationAdapter {
 	public Ship ship;
 	public EnemyHandler eHand;
 	static ArrayList<Flash> booms;
+	FileHandle highScore;
+	int lastHighScore;
 	BitmapFont font;
 	static public int score;
 	float backgroundY;
@@ -43,6 +46,12 @@ public class Game extends ApplicationAdapter {
 		ship =  new BasicShip(this);
 		eHand = new EnemyHandler(this);
 		touchPos = new Vector3();
+		highScore = Gdx.files.local("highScore.txt");
+		if(!highScore.exists()){
+			highScore.writeString("0", false);
+		}else{
+			lastHighScore = Integer.parseInt(highScore.readString());
+		}
 		font = new BitmapFont();
 		Color c = new Color(0,1,1,1);
 		font.setColor(c);
@@ -80,7 +89,7 @@ public class Game extends ApplicationAdapter {
 		for(Flash f: booms){
 			sBatch.draw(boom, f.r.x, f.r.y);
 		}
-		font.draw(sBatch, "Score: " + score, 0, 800);
+		font.draw(sBatch, "Score: " + score + "    Highscore: " + ((score > lastHighScore) ? score : lastHighScore), 0, 800);
 		sBatch.end();
 		//-----------------------------------------------------------------------------------------
 	}
@@ -117,5 +126,12 @@ public class Game extends ApplicationAdapter {
 				iter.remove();
 			}
 		}
+	}
+
+	public void endGame(){
+		if(score > lastHighScore) {
+			highScore.writeString(Integer.toString(score), false);
+		}
+		create();
 	}
 }

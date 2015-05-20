@@ -16,7 +16,7 @@ public class BasicEnemy extends Enemy {
 
     public BasicEnemy(int speed){
         super(new Texture("enemy.png"), 34, 14, speed);
-        hitbox = new Rectangle(MathUtils.random(32, 480 - 64), 800, width, height);
+        hitbox = new Rectangle(MathUtils.random(0, 480-width), 800, width, height);
     }
 
     @Override
