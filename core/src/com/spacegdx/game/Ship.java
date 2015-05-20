@@ -14,20 +14,23 @@ public abstract class Ship {
     public Texture t;
     public float width, height;
     public Rectangle hitbox;
+    public Game game;
 
-
-    public Ship(Texture t, float width, float height, float recX, float recY){
+    public Ship(Texture t, float width, float height, float recX, float recY, Game game){
         this.t = t;
         this.width = width;
         this.height = height;
         hitbox = new Rectangle( width/2 + 480/2 - recX/2, height/2 + 100 - recY/2, recX, recY);
+        this.game = game;
     }
     public abstract void moveTo(float x, float y);
     public abstract void draw(SpriteBatch sb);
     public abstract void drawLasers(SpriteBatch sb);
     public abstract void spawnLaser();
-    public abstract void iterateLaser(ArrayList<Rectangle> enemies); //TODO: change to type Enemy
-    public abstract void dispose();
+    public abstract void iterateLaser(ArrayList<Enemy> enemies);
+    public void dispose(){
+        t.dispose();
+    }
     public Rectangle getHitbox(){
         return hitbox;
     }

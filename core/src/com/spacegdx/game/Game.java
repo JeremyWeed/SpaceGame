@@ -20,41 +20,32 @@ import java.util.Iterator;
 
 public class Game extends ApplicationAdapter {
 	Texture background;
-	Texture enemy;
 	Texture boom;
 	OrthographicCamera camera;
 	SpriteBatch sBatch;
 	Vector3 touchPos;
-	Ship ship;
-	ArrayList<Rectangle> enemies;
+	public Ship ship;
+	public EnemyHandler eHand;
 	static ArrayList<Flash> booms;
 	BitmapFont font;
-	long lastEnemySpawnTime;
-	static public int eSpeed;
-	static public long enemySpawnDelay;
 	static public int score;
 	float backgroundY;
 	
 	@Override
 	public void create(){
 		background = new Texture("background.png");
-		enemy = new Texture("enemy.png");
 		boom = new Texture("boom.png");
-		lastEnemySpawnTime = 0;
-		eSpeed = 100;
-		enemySpawnDelay = 1000000000;
 		score = 0;
 		camera =  new OrthographicCamera();
 		camera.setToOrtho(false, 480, 800);
 		sBatch =  new SpriteBatch();
-		enemies = new ArrayList();
 		booms = new ArrayList();
-		ship =  new BasicShip();
+		ship =  new BasicShip(this);
+		eHand = new EnemyHandler(this);
 		touchPos = new Vector3();
 		font = new BitmapFont();
 		Color c = new Color(0,1,1,1);
 		font.setColor(c);
-		spawnEnemy();
 		//Gdx.input.setCursorCatched(true);
 	}
 
@@ -65,10 +56,6 @@ public class Game extends ApplicationAdapter {
 		camera.update();
 		sBatch.setProjectionMatrix(camera.combined);
 
-		if(TimeUtils.timeSinceNanos(lastEnemySpawnTime) > enemySpawnDelay){
-			spawnEnemy();
-		}
-
 		if(Gdx.input.isTouched()){
 			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touchPos);
@@ -77,8 +64,8 @@ public class Game extends ApplicationAdapter {
 
 		}
 
-		ship.iterateLaser(enemies);
-		iterateEnemy(enemies);
+		ship.iterateLaser(eHand.enemies);
+		eHand.iterate();
 		iterateBoom(booms);
 		iterateBackground();
 
@@ -89,9 +76,7 @@ public class Game extends ApplicationAdapter {
 		sBatch.draw(background, 0, backgroundY + 800);
 		ship.draw(sBatch);
 		ship.drawLasers(sBatch);
-		for(Rectangle enemy: enemies){
-			sBatch.draw(this.enemy,enemy.x, enemy.y);
-		}
+		eHand.draw(sBatch);
 		for(Flash f: booms){
 			sBatch.draw(boom, f.r.x, f.r.y);
 		}
@@ -104,32 +89,9 @@ public class Game extends ApplicationAdapter {
 	public void dispose() {
 		ship.dispose();
 		background.dispose();
-		enemy.dispose();
+		eHand.dispose();
 	}
 
-	public void spawnEnemy(){
-		Rectangle enemy = new Rectangle();
-
-		enemy.width = 34;
-		enemy.height = 14;
-
-		lastEnemySpawnTime = TimeUtils.nanoTime();
-	}
-
-	public void iterateEnemy(ArrayList<Rectangle> enemies){
-		Iterator<Rectangle> iter = enemies.iterator();
-		while(iter.hasNext()){
-			Rectangle enemy = iter.next();
-			enemy.y -= eSpeed * Gdx.graphics.getDeltaTime();
-			if(enemy.y < 0){
-				iter.remove();
-				enemySpawnDelay = (enemySpawnDelay != 0) ? enemySpawnDelay -= 10000000: 10000000;
-				eSpeed += 10;
-			}else if(enemy.overlaps(ship.getHitbox())){
-				create();
-			}
-		}
-	}
 	public void iterateBackground(){
 		backgroundY -= 1;
 		if(backgroundY < -800){

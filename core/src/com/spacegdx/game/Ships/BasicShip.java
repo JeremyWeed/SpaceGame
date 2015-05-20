@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.spacegdx.game.Enemy;
 import com.spacegdx.game.Game;
 import com.spacegdx.game.Ship;
 
@@ -21,8 +22,8 @@ public class BasicShip extends Ship {
     int laserSpeed;
     public long lastLaserFireTime, laserFireDelay;
 
-    public BasicShip(){
-        super(new Texture("ship.png"), 28 * 2, 31 * 2, 6, 26);
+    public BasicShip(Game game){
+        super(new Texture("ship.png"), 28 * 2, 31 * 2, 6, 26, game);
         lasersR = new ArrayList();
         lasersL = new ArrayList();
         laserR = new Texture("laserR.png");
@@ -67,20 +68,17 @@ public class BasicShip extends Ship {
         }
 
     }
-    public void iterateLaser(ArrayList<Rectangle> enemies){
+    public void iterateLaser(ArrayList<Enemy> enemies){
+        ArrayList<Enemy> livingDead = new ArrayList<Enemy>();
         Iterator<Rectangle> iter = lasersL.iterator();
         while(iter.hasNext()){
             Rectangle laser = iter.next();
-            Iterator<Rectangle> iterE = enemies.iterator();
+            Iterator<Enemy> iterE = enemies.iterator();
             while(iterE.hasNext()) {
-                Rectangle enemy = iterE.next();
-                if (laser.overlaps(enemy)) {
-                    Game.spawnBoom(enemy.x - 17, enemy.y - 7);
-                    iterE.remove();
+                Enemy enemy = iterE.next();
+                if (laser.overlaps(enemy.hitbox)) {
+                    livingDead.add(enemy);
                     iter.remove();
-                    Game.enemySpawnDelay = (Game.enemySpawnDelay != 0) ? Game.enemySpawnDelay -= 10000000: 50000000;
-                    Game.eSpeed += 5;
-                    Game.score++;
                 }
             }
             laser.y += laserSpeed * Gdx.graphics.getDeltaTime();
@@ -92,16 +90,12 @@ public class BasicShip extends Ship {
         iter = lasersR.iterator();
         while(iter.hasNext()){
             Rectangle laser = iter.next();
-            Iterator<Rectangle> iterE = enemies.iterator();
+            Iterator<Enemy> iterE = enemies.iterator();
             while(iterE.hasNext()) {
-                Rectangle enemy = iterE.next();
-                if (laser.overlaps(enemy)) {
-                    Game.spawnBoom(enemy.x - 17, enemy.y - 7);
-                    iterE.remove();
+                Enemy enemy = iterE.next();
+                if (laser.overlaps(enemy.hitbox)) {
+                    livingDead.add(enemy);
                     iter.remove();
-                    Game.enemySpawnDelay = (Game.enemySpawnDelay != 0) ? Game.enemySpawnDelay -= 10000000: 50000000;
-                    Game.eSpeed += 5;
-                    Game.score++;
                 }
             }
             laser.y += laserSpeed * Gdx.graphics.getDeltaTime();
@@ -109,8 +103,12 @@ public class BasicShip extends Ship {
                 iter.remove();
             }
         }
+        for(Enemy enemy : livingDead){
+            game.eHand.kill(enemy);
+        }
     }
     public void dispose(){
+        super.dispose();
         laserR.dispose();
         laserL.dispose();
     }
