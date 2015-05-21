@@ -33,33 +33,28 @@ public class Game extends ApplicationAdapter {
 	BitmapFont font;
 	static public int score;
 	float backgroundY;
-	
+	public enum State{
+		MENU,
+		GAME
+	}
+	State state = State.GAME;
 	@Override
 	public void create(){
-		background = new Texture("background.png");
-		boom = new Texture("boom.png");
-		score = 0;
-		camera =  new OrthographicCamera();
-		camera.setToOrtho(false, 480, 800);
-		sBatch =  new SpriteBatch();
-		booms = new ArrayList();
-		ship =  new BasicShip(this);
-		eHand = new EnemyHandler(this);
-		touchPos = new Vector3();
-		highScore = Gdx.files.local("highScore.txt");
-		if(!highScore.exists()){
-			highScore.writeString("0", false);
-		}else{
-			lastHighScore = Integer.parseInt(highScore.readString());
-		}
-		font = new BitmapFont();
-		Color c = new Color(0,1,1,1);
-		font.setColor(c);
-		//Gdx.input.setCursorCatched(true);
+		gameSetup();
 	}
 
 	@Override
 	public void render(){
+		gameRender();
+	}
+
+
+	@Override
+	public void resume(){
+		endGame();
+	}
+
+	public void gameRender(){
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		camera.update();
@@ -94,6 +89,28 @@ public class Game extends ApplicationAdapter {
 		//-----------------------------------------------------------------------------------------
 	}
 
+	public void gameSetup(){
+		background = new Texture("background.png");
+		boom = new Texture("boom.png");
+		score = 0;
+		camera =  new OrthographicCamera();
+		camera.setToOrtho(false, 480, 800);
+		sBatch =  new SpriteBatch();
+		booms = new ArrayList();
+		ship =  new BasicShip(this);
+		eHand = new EnemyHandler(this);
+		touchPos = new Vector3();
+		highScore = Gdx.files.local("highScore.txt");
+		if(!highScore.exists()){
+			highScore.writeString("0", false);
+		}else{
+			lastHighScore = Integer.parseInt(highScore.readString());
+		}
+		font = new BitmapFont();
+		Color c = new Color(0,1,1,1);
+		font.setColor(c);
+	}
+
 	@Override
 	public void dispose() {
 		ship.dispose();
@@ -106,10 +123,6 @@ public class Game extends ApplicationAdapter {
 		if(backgroundY < -800){
 			backgroundY = 0;
 		}
-	}
-
-	public void resume(){
-		endGame();
 	}
 
 	public static void spawnBoom(float x, float y){
