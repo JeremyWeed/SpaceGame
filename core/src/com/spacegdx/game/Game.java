@@ -108,6 +108,10 @@ public class Game extends ApplicationAdapter {
 		}
 	}
 
+	public void resume(){
+		endGame();
+	}
+
 	public static void spawnBoom(float x, float y){
 		Rectangle boom = new Rectangle();
 		boom.x = x + 24;
