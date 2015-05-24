@@ -28,6 +28,7 @@ public abstract class Ship {
     public abstract void drawLasers(SpriteBatch sb);
     public abstract void spawnLaser();
     public abstract void iterateLaser(ArrayList<Enemy> enemies);
+    public abstract void iterateShip();
     public void dispose(){
         t.dispose();
     }

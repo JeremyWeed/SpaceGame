@@ -28,16 +28,18 @@ public class Game extends ApplicationAdapter {
 	public Ship ship;
 	public EnemyHandler eHand;
 	static ArrayList<Flash> booms;
-	FileHandle highScore;
+	FileHandle highScore, fontHomespun, fontEroded;
 	int lastHighScore;
-	BitmapFont font;
+	BitmapFont font, menuFont;
 	static public int score;
 	float backgroundY;
+	boolean menuFlag = false;
 	public enum State{
 		MENU,
-		GAME
+		GAME,
+		END
 	}
-	State state = State.GAME;
+	State state = State.MENU;
 	@Override
 	public void create(){
 		gameSetup();
@@ -45,7 +47,17 @@ public class Game extends ApplicationAdapter {
 
 	@Override
 	public void render(){
-		gameRender();
+		switch(state){
+			case MENU:
+				menuRender();
+				break;
+			case GAME:
+				gameRender();
+				break;
+			case END:
+				break;
+		}
+
 	}
 
 
@@ -53,10 +65,32 @@ public class Game extends ApplicationAdapter {
 	public void resume(){
 		endGame();
 	}
+	public void menuRender(){
 
+		camera.update();
+		sBatch.setProjectionMatrix(camera.combined);
+		iterateBackground();
+		menuFlag = (!Gdx.input.isTouched() && !menuFlag) ? true : menuFlag;
+		if(Gdx.input.isTouched() && menuFlag){
+			menuFlag = false;
+			state = State.GAME;
+		}
+		//---------------------------------------------------------------------------------------
+		sBatch.begin();
+
+		sBatch.draw(background, 0, backgroundY);
+		sBatch.draw(background, 0, backgroundY + 800);
+
+		menuFont.draw(sBatch, "SPACE GAME", 100, 500);
+		menuFont.draw(sBatch, "touch to start", 50, 400);
+		sBatch.end();
+		//---------------------------------------------------------------------------------------
+
+
+	}
 	public void gameRender(){
-		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		//Gdx.gl.glClearColor(0, 0, 0, 1);
+		//Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		camera.update();
 		sBatch.setProjectionMatrix(camera.combined);
 
@@ -67,7 +101,7 @@ public class Game extends ApplicationAdapter {
 			ship.spawnLaser();
 
 		}
-
+		ship.iterateShip();
 		ship.iterateLaser(eHand.enemies);
 		eHand.iterate();
 		iterateBoom(booms);
@@ -84,7 +118,8 @@ public class Game extends ApplicationAdapter {
 		for(Flash f: booms){
 			sBatch.draw(boom, f.r.x, f.r.y);
 		}
-		font.draw(sBatch, "Score: " + score + "    Highscore: " + ((score > lastHighScore) ? score : lastHighScore), 0, 800);
+		font.draw(sBatch, "Score: " + score, 0, 800);
+		font.draw(sBatch, "Highscore: " + ((score > lastHighScore) ? score : lastHighScore), 200, 800);
 		sBatch.end();
 		//-----------------------------------------------------------------------------------------
 	}
@@ -101,14 +136,18 @@ public class Game extends ApplicationAdapter {
 		eHand = new EnemyHandler(this);
 		touchPos = new Vector3();
 		highScore = Gdx.files.local("highScore.txt");
+		fontHomespun = Gdx.files.internal("fonts/homespun/homespun.fnt");
+		fontEroded =  Gdx.files.internal("fonts/Eroded R-2014/Eroded_R-2014.fnt");
 		if(!highScore.exists()){
 			highScore.writeString("0", false);
 		}else{
 			lastHighScore = Integer.parseInt(highScore.readString());
 		}
-		font = new BitmapFont();
+		font = new BitmapFont(fontHomespun);
+		menuFont = new BitmapFont(fontEroded);
 		Color c = new Color(0,1,1,1);
 		font.setColor(c);
+		menuFont.setColor(c);
 	}
 
 	@Override
@@ -119,7 +158,7 @@ public class Game extends ApplicationAdapter {
 	}
 
 	public void iterateBackground(){
-		backgroundY -= 1;
+		backgroundY -= 10 * Gdx.graphics.getDeltaTime();
 		if(backgroundY < -800){
 			backgroundY = 0;
 		}
@@ -149,6 +188,7 @@ public class Game extends ApplicationAdapter {
 		if(score > lastHighScore) {
 			highScore.writeString(Integer.toString(score), false);
 		}
+		state = State.MENU;
 		create();
 	}
 }

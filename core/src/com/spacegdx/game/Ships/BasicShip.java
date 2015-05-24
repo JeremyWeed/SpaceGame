@@ -21,6 +21,12 @@ public class BasicShip extends Ship {
     Texture laserR, laserL;
     int laserSpeed;
     public long lastLaserFireTime, laserFireDelay;
+    double p = 8;
+    double i = 0;
+    double d = 0;
+    double desiredX, desiredY;
+    double xSpeed, ySpeed;
+    double xI, yI;
 
     public BasicShip(Game game){
         super(new Texture("ship.png"), 28 * 2, 31 * 2, 12, 52, game);
@@ -33,8 +39,10 @@ public class BasicShip extends Ship {
     }
 
     public void moveTo(float x, float y){
-        hitbox.x = x - hitbox.width/2;
-        hitbox.y = y - hitbox.height/2 + 64;
+        x -= hitbox.width / 2;
+        y += hitbox.height / 2 + 64;
+        desiredX = x;
+        desiredY = y;
     }
     public void draw(SpriteBatch sb){
         sb.draw(super.t, super.hitbox.x + hitbox.width/2 - width/2, super.hitbox.y + hitbox.height/2 - height/2 + 4, width, height);
@@ -47,6 +55,22 @@ public class BasicShip extends Ship {
             sb.draw(laserL, laser.x, laser.y);
         }
     }
+    public void iterateShip(){
+        double deltaX = (hitbox.x - desiredX);
+        xI += deltaX * Gdx.graphics.getDeltaTime();
+        double xD = xSpeed;
+
+        double deltaY = (hitbox.y - desiredY);
+        yI += deltaY * Gdx.graphics.getDeltaTime();
+        double yD = ySpeed;
+
+        xSpeed = p * deltaX + i * xI + d * xD;
+        ySpeed = p * deltaY + i * yI + d * yD;
+
+        hitbox.x -= xSpeed * Gdx.graphics.getDeltaTime();
+        hitbox.y -= ySpeed * Gdx.graphics.getDeltaTime();
+    }
+
     public void spawnLaser(){
         if(TimeUtils.timeSinceNanos(lastLaserFireTime) > laserFireDelay){
             Rectangle laserL = new Rectangle();
