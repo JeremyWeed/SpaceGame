@@ -15,6 +15,11 @@ public class BasicLaser extends EnemyLaser{
         super(new Texture("eLaser.png"), 2, 10, x, y);
     }
 
+    public BasicLaser(float x, float y, int speed) {
+        super(new Texture("eLaser.png"), 2, 10, x, y);
+        this.speed = speed;
+    }
+
     @Override
     public void move() {
         hitbox.y -= speed * Gdx.graphics.getDeltaTime();

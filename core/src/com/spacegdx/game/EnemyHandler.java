@@ -42,7 +42,7 @@ public class EnemyHandler {
         while(iter.hasNext()){
             Enemy enemy = iter.next();
             if(MathUtils.random(0,100) > 99){
-                lasers.add(new BasicLaser(enemy.hitbox.x + enemy.width/2, enemy.hitbox.y));
+                lasers.add(new BasicLaser(enemy.hitbox.x + enemy.width/2, enemy.hitbox.y, enemy.speed + 200));
             }
             if(enemy.hitbox.y < 0){
                 iter.remove();
@@ -88,7 +88,7 @@ public class EnemyHandler {
     public void kill(Enemy e){
         try{
             enemies.remove(e);
-            game.spawnBoom(e.hitbox.x - e.width/2, e.hitbox.y + e.height/2);
+            Game.spawnBoom(e.hitbox.x - e.width/2, e.hitbox.y + e.height/2);
             speed += 2;
             spawnDelay *= Math.pow(.95,  (TimeUtils.timeSinceNanos(speedConst) / Math.pow(10, 9)));
             speedConst = TimeUtils.nanoTime();
