@@ -30,5 +30,7 @@ public abstract class Enemy {
         t.dispose();
     }
     public abstract void move();
+    public abstract boolean isOffScreen();
+    public abstract EnemyLaser spawnLaser();
 
 }

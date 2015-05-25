@@ -3,6 +3,7 @@ package com.spacegdx.game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.spacegdx.game.Enemies.Asteroid;
 import com.spacegdx.game.Enemies.BasicEnemy;
 import com.spacegdx.game.Enemies.BasicLaser;
 
@@ -16,8 +17,9 @@ public class EnemyHandler {
     ArrayList<Enemy> enemies;
     ArrayList<EnemyLaser> lasers;
     int speed;
-    long spawnDelay;
-    long lastSpawnTime;
+    long spawnDelayBasic;
+    long lastSpawnTimeBasic;
+    long lastSpawnTimeAster;
     long speedConst;
     Game game;
 
@@ -26,15 +28,19 @@ public class EnemyHandler {
         lasers= new ArrayList<EnemyLaser>();
         this.game = game;
         speed = 100;
-        spawnDelay = 1000000000;
+        spawnDelayBasic = 1000000000;
         speedConst = TimeUtils.nanoTime();
     }
 
     public void iterate(){
         //spawn stuff
-        if (TimeUtils.timeSinceNanos(lastSpawnTime) > spawnDelay){
-            lastSpawnTime = TimeUtils.nanoTime();
+        if (TimeUtils.timeSinceNanos(lastSpawnTimeBasic) > spawnDelayBasic){
+            lastSpawnTimeBasic = TimeUtils.nanoTime();
             enemies.add(new BasicEnemy(speed));
+        }
+        if (TimeUtils.timeSinceNanos(lastSpawnTimeAster) > 3 * spawnDelayBasic){
+            lastSpawnTimeAster = TimeUtils.nanoTime();
+            enemies.add(Asteroid.createAsteroid(speed / 2));
         }
 
         //test for collisions and move
@@ -42,12 +48,15 @@ public class EnemyHandler {
         while(iter.hasNext()){
             Enemy enemy = iter.next();
             if(MathUtils.random(0,100) > 99){
-                lasers.add(new BasicLaser(enemy.hitbox.x + enemy.width/2, enemy.hitbox.y, enemy.speed + 200));
+                EnemyLaser e = enemy.spawnLaser();
+                if(e != null){
+                    lasers.add(e);
+                }
             }
-            if(enemy.hitbox.y < 0){
+            if(enemy.isOffScreen()){
                 iter.remove();
                 speed += 2;
-                spawnDelay *= Math.pow(.95,  (TimeUtils.timeSinceNanos(speedConst) / Math.pow(10, 9)));
+                spawnDelayBasic *= Math.pow(.95,  (TimeUtils.timeSinceNanos(speedConst) / Math.pow(10, 9)));
                 speedConst = TimeUtils.nanoTime();
             }else if(enemy.hitbox.overlaps(game.ship.getHitbox())){
                 game.endGame();
@@ -90,7 +99,7 @@ public class EnemyHandler {
             enemies.remove(e);
             Game.spawnBoom(e.hitbox.x + e.width/2, e.hitbox.y + e.height/2);
             speed += 2;
-            spawnDelay *= Math.pow(.95,  (TimeUtils.timeSinceNanos(speedConst) / Math.pow(10, 9)));
+            spawnDelayBasic *= Math.pow(.95,  (TimeUtils.timeSinceNanos(speedConst) / Math.pow(10, 9)));
             speedConst = TimeUtils.nanoTime();
             Game.score++;
         }catch(Exception ex){

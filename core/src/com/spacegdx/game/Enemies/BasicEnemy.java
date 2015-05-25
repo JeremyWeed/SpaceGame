@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.spacegdx.game.Enemy;
+import com.spacegdx.game.EnemyLaser;
 import com.spacegdx.game.Ship;
 
 /**
@@ -27,6 +28,16 @@ public class BasicEnemy extends Enemy {
     @Override
     public void move() {
         hitbox.y -= speed * Gdx.graphics.getDeltaTime();
+    }
+
+    @Override
+    public boolean isOffScreen() {
+        return hitbox.y < 0;
+    }
+
+    @Override
+    public EnemyLaser spawnLaser() {
+        return new BasicLaser(hitbox.x + width/2, hitbox.y, speed + 200);
     }
 
 }
