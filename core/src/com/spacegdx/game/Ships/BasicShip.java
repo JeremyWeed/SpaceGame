@@ -22,8 +22,8 @@ public class BasicShip extends Ship {
     int laserSpeed;
     public long lastLaserFireTime, laserFireDelay;
     double p = 8;
-    double i = 0;
-    double d = 0;
+    double i = .01;
+    double d = .5;
     double desiredX, desiredY;
     double xSpeed, ySpeed;
     double xI, yI;
@@ -34,13 +34,13 @@ public class BasicShip extends Ship {
         lasersL = new ArrayList();
         laserR = new Texture("laserR.png");
         laserL = new Texture("laserL.png");
-        laserSpeed = 300;
+        laserSpeed = 500;
         laserFireDelay = 375000000;
     }
 
     public void moveTo(float x, float y){
         x -= hitbox.width / 2;
-        y += hitbox.height / 2 + 64;
+        y -= hitbox.height / 2 - 64;
         desiredX = x;
         desiredY = y;
     }

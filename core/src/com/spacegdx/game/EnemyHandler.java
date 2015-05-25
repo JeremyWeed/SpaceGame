@@ -88,7 +88,7 @@ public class EnemyHandler {
     public void kill(Enemy e){
         try{
             enemies.remove(e);
-            Game.spawnBoom(e.hitbox.x - e.width/2, e.hitbox.y + e.height/2);
+            Game.spawnBoom(e.hitbox.x + e.width/2, e.hitbox.y + e.height/2);
             speed += 2;
             spawnDelay *= Math.pow(.95,  (TimeUtils.timeSinceNanos(speedConst) / Math.pow(10, 9)));
             speedConst = TimeUtils.nanoTime();
