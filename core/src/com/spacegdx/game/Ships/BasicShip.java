@@ -29,7 +29,7 @@ public class BasicShip extends Ship {
     double xI, yI;
 
     public BasicShip(Game game){
-        super(new Texture("ship.png"), 28 * 2, 31 * 2, 12, 52, game);
+        super(new Texture("ship.png"), 28 * 2, 31 * 2, 12, 52, 1, game);
         lasersR = new ArrayList();
         lasersL = new ArrayList();
         laserR = new Texture("laserR.png");
@@ -46,6 +46,9 @@ public class BasicShip extends Ship {
     }
     public void draw(SpriteBatch sb){
         sb.draw(super.t, super.hitbox.x + hitbox.width/2 - width/2, super.hitbox.y + hitbox.height/2 - height/2 + 4, width, height);
+    }
+    public void draw(SpriteBatch sb, float x, float y){
+        sb.draw(super.t, x - width/2, y - height/2 + 4, width, height);
     }
     public void drawLasers(SpriteBatch sb){
         for(Rectangle laser: lasersR){
@@ -95,6 +98,7 @@ public class BasicShip extends Ship {
     public void iterateLaser(ArrayList<Enemy> enemies){
         ArrayList<Enemy> livingDead = new ArrayList<Enemy>();
         Iterator<Rectangle> iter = lasersL.iterator();
+        ArrayList<Rectangle> lostLasersL = new ArrayList<Rectangle>();
         while(iter.hasNext()){
             Rectangle laser = iter.next();
             Iterator<Enemy> iterE = enemies.iterator();
@@ -102,16 +106,17 @@ public class BasicShip extends Ship {
                 Enemy enemy = iterE.next();
                 if (laser.overlaps(enemy.hitbox)) {
                     livingDead.add(enemy);
-                    iter.remove();
+                    lostLasersL.add(laser);
                 }
             }
             laser.y += laserSpeed * Gdx.graphics.getDeltaTime();
             if(laser.y > 821){
-                iter.remove();
+                lostLasersL.add(laser);
             }
         }
 
         iter = lasersR.iterator();
+        ArrayList<Rectangle> lostLasersR = new ArrayList<Rectangle>();
         while(iter.hasNext()){
             Rectangle laser = iter.next();
             Iterator<Enemy> iterE = enemies.iterator();
@@ -119,13 +124,19 @@ public class BasicShip extends Ship {
                 Enemy enemy = iterE.next();
                 if (laser.overlaps(enemy.hitbox)) {
                     livingDead.add(enemy);
-                    iter.remove();
+                    lostLasersR.add(laser);
                 }
             }
             laser.y += laserSpeed * Gdx.graphics.getDeltaTime();
             if(laser.y > 821){
-                iter.remove();
+                lostLasersR.add(laser);
             }
+        }
+        for(Rectangle laser : lostLasersL){
+            lasersL.remove(laser);
+        }
+        for(Rectangle laser : lostLasersR){
+            lasersR.remove(laser);
         }
         for(Enemy enemy : livingDead){
             game.eHand.kill(enemy);

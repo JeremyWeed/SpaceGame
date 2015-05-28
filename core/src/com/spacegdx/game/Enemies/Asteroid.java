@@ -32,11 +32,11 @@ public class Asteroid extends Enemy{
         rSpeed = MathUtils.random(-90, 90);
 
         if(side == Side.right){
-            hitbox = new Rectangle(480,MathUtils.random(200, 800), width, height);
+            hitbox = new Rectangle(480,MathUtils.random(200, 800), width - width / 6, height - height / 6);
             hitbox.x = 480;
         }else{
             xSpeed = -xSpeed;
-            hitbox = new Rectangle(-width,MathUtils.random(200, 800), width, height);
+            hitbox = new Rectangle(-width,MathUtils.random(200, 800), width - width / 6, height - height / 6);
         }
     }
 
@@ -50,7 +50,7 @@ public class Asteroid extends Enemy{
 
     @Override
     public void draw(SpriteBatch sb) {
-        sb.draw(t, hitbox.x, hitbox.y, width / 2, height / 2, width, height, 1, 1,
+        sb.draw(t, hitbox.x - width / 12, hitbox.y - height / 12, width / 2, height / 2, width, height, 1, 1,
                 rAngle, 0, 0, (int)width, (int)height, false, false);
     }
 
@@ -64,7 +64,7 @@ public class Asteroid extends Enemy{
 
     @Override
     public boolean isOffScreen() {
-        return (hitbox.x < - width || hitbox. y < 0 || hitbox.x > 480);
+        return (hitbox.x < - width || hitbox. y < -height || hitbox.x > 480);
     }
 
     @Override
