@@ -31,6 +31,7 @@ public abstract class Ship {
     public abstract void spawnLaser();
     public abstract void iterateLaser(ArrayList<Enemy> enemies);
     public abstract void iterateShip();
+    public abstract boolean overlaps(Rectangle r);
     public void dispose(){
         t.dispose();
     }

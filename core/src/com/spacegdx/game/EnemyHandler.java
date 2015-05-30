@@ -58,7 +58,7 @@ public class EnemyHandler {
                 speed += 2;
                 spawnDelayBasic *= Math.pow(.95,  (TimeUtils.timeSinceNanos(speedConst) / Math.pow(10, 9)));
                 speedConst = TimeUtils.nanoTime();
-            }else if(enemy.hitbox.overlaps(game.ship.getHitbox())){
+            }else if(game.ship.overlaps(enemy.hitbox)){
                 game.endGame();
             }else{
                 enemy.move();
@@ -69,7 +69,7 @@ public class EnemyHandler {
             EnemyLaser laser = iterL.next();
             if(laser.hitbox.y < 0){
                 iterL.remove();
-            }else if(laser.hitbox.overlaps(game.ship.getHitbox())){
+            }else if(game.ship.overlaps(laser.hitbox)){
                 game.endGame();
             }else{
                 laser.move();

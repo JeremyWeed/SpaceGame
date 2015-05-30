@@ -19,6 +19,7 @@ public class BasicShip extends Ship {
     ArrayList<Rectangle> lasersR;
     ArrayList<Rectangle> lasersL;
     Texture laserR, laserL;
+    Rectangle hitbox2;
     int laserSpeed;
     public long lastLaserFireTime, laserFireDelay;
     double p = 8;
@@ -36,11 +37,13 @@ public class BasicShip extends Ship {
         laserL = new Texture("laserL.png");
         laserSpeed = 500;
         laserFireDelay = 375000000;
+        hitbox2 = new Rectangle(0,0,width, 4);
     }
 
     public void moveTo(float x, float y){
         x -= hitbox.width / 2;
         y -= hitbox.height / 2 - 64;
+        y = Math.min(y, 800 - height);
         desiredX = x;
         desiredY = y;
     }
@@ -72,6 +75,14 @@ public class BasicShip extends Ship {
 
         hitbox.x -= xSpeed * Gdx.graphics.getDeltaTime();
         hitbox.y -= ySpeed * Gdx.graphics.getDeltaTime();
+
+        hitbox2.x = hitbox.x + hitbox.width/2 - hitbox2.width/2;
+        hitbox2.y = hitbox.y + hitbox.height/2 - hitbox2.height/2 - 7 * 2;
+    }
+
+    @Override
+    public boolean overlaps(Rectangle r) {
+        return hitbox.overlaps(r) || hitbox2.overlaps(r);
     }
 
     public void spawnLaser(){
