@@ -5,10 +5,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.spacegdx.game.Enemy;
-import com.spacegdx.game.EnemyLaser;
-import com.spacegdx.game.Ship;
+import com.spacegdx.game.Laser;
 
 /**
  * Created by Jeremy on 5/18/2015.
@@ -36,7 +34,7 @@ public class BasicEnemy extends Enemy {
     }
 
     @Override
-    public EnemyLaser spawnLaser() {
+    public Laser spawnLaser() {
         return new BasicLaser(hitbox.x + width/2, hitbox.y, speed + 200);
     }
 

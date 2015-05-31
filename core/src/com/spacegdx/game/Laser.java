@@ -5,28 +5,22 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
 /**
- * Created by Jeremy on 5/18/2015.
+ * Created by Jeremy on 5/20/2015.
  */
-public abstract class Enemy {
+public abstract class Laser {
     public Texture t;
-    public float width,height;
     public Rectangle hitbox;
-    public int speed;
+    float width, height;
 
-
-    public Enemy(Texture t, float width, float height, int speed){
+    public Laser(Texture t, float width, float height, float x, float y){
         this.t = t;
-        this.width = width;
         this.height = height;
-        this.speed = speed;
+        this.width = width;
+        hitbox = new Rectangle(x - width/2, y - height, width, height);
     }
-
+    public abstract void move();
     public abstract void draw(SpriteBatch sb);
     public void dispose(){
         t.dispose();
     }
-    public abstract void move();
-    public abstract boolean isOffScreen();
-    public abstract Laser spawnLaser();
-
 }

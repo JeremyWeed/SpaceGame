@@ -7,7 +7,7 @@ import com.spacegdx.game.Ships.PowerShip;
  * Created by Jeremy on 5/30/2015.
  */
 public class ShipHandler {
-    static Ship ship;
+    Ship ship;
     Game game;
     int shipSelect;
     static int maxShips = 1; //should be one less than amount of ships
@@ -15,14 +15,14 @@ public class ShipHandler {
 
     private ShipHandler(Game game){
         this.game = game;
+        ship = new BasicShip(game);
     }
 
-    public static ShipHandler getNewHandler(Game game){
+    public static ShipHandler getHandler(Game game){
         if(shipH == null){
-            return new ShipHandler(game);
-        }else{
-            return shipH;
+            shipH = new ShipHandler(game);
         }
+        return shipH;
     }
 
     public Ship getCurrentShip(){
@@ -30,18 +30,19 @@ public class ShipHandler {
     }
 
     public void increment(){
-        maxShips = (shipSelect == maxShips) ? 0 : shipSelect + 1;
+        shipSelect = (shipSelect == maxShips) ? 0 : shipSelect + 1;
         ship =  setShip(shipSelect);
 
     }
 
     public void decrement(){
-        maxShips = (shipSelect == 0) ? shipSelect - 1 : 0;
+        shipSelect = (shipSelect == 0) ? maxShips : shipSelect - 1;
         ship = setShip(shipSelect);
 
     }
 
     Ship setShip(int i){
+        ship.dispose();
         switch(i){
             case 0:
                 return new BasicShip(game);
@@ -49,6 +50,18 @@ public class ShipHandler {
                 return new PowerShip(game);
             default:
                 return new BasicShip(game);
+        }
+    }
+
+    public int getSS(){
+        return shipSelect;
+    }
+
+    public void setSS(int i){
+        if(i > maxShips || i < 0){
+            shipSelect = 0;
+        }else{
+            shipSelect = i;
         }
     }
 }

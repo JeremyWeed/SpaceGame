@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.spacegdx.game.Enemies.Asteroid;
 import com.spacegdx.game.Enemies.BasicEnemy;
-import com.spacegdx.game.Enemies.BasicLaser;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,7 +14,7 @@ import java.util.Iterator;
  */
 public class EnemyHandler {
     ArrayList<Enemy> enemies;
-    ArrayList<EnemyLaser> lasers;
+    ArrayList<Laser> lasers;
     int speed;
     long spawnDelayBasic;
     long lastSpawnTimeBasic;
@@ -25,7 +24,7 @@ public class EnemyHandler {
 
     public EnemyHandler(Game game){
         enemies = new ArrayList<Enemy>();
-        lasers= new ArrayList<EnemyLaser>();
+        lasers= new ArrayList<Laser>();
         this.game = game;
         speed = 100;
         spawnDelayBasic = 1000000000;
@@ -48,7 +47,7 @@ public class EnemyHandler {
         while(iter.hasNext()){
             Enemy enemy = iter.next();
             if(MathUtils.random(0,100) > 99){
-                EnemyLaser e = enemy.spawnLaser();
+                Laser e = enemy.spawnLaser();
                 if(e != null){
                     lasers.add(e);
                 }
@@ -64,9 +63,9 @@ public class EnemyHandler {
                 enemy.move();
             }
         }
-        Iterator<EnemyLaser> iterL = lasers.iterator();
+        Iterator<Laser> iterL = lasers.iterator();
         while(iterL.hasNext()){
-            EnemyLaser laser = iterL.next();
+            Laser laser = iterL.next();
             if(laser.hitbox.y < 0){
                 iterL.remove();
             }else if(game.ship.overlaps(laser.hitbox)){
@@ -82,7 +81,7 @@ public class EnemyHandler {
         while(iter.hasNext()){
             iter.next().draw(sb);
         }
-        Iterator<EnemyLaser> iterL = lasers.iterator();
+        Iterator<Laser> iterL = lasers.iterator();
         while(iterL.hasNext()){
             iterL.next().draw(sb);
         }

@@ -3,12 +3,12 @@ package com.spacegdx.game.Enemies;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.spacegdx.game.EnemyLaser;
+import com.spacegdx.game.Laser;
 
 /**
  * Created by Jeremy on 5/20/2015.
  */
-public class BasicLaser extends EnemyLaser{
+public class BasicLaser extends Laser {
     int speed = 300;
 
     public BasicLaser(float x, float y) {

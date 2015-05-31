@@ -6,7 +6,7 @@ package com.spacegdx.game.Enemies;
         import com.badlogic.gdx.math.MathUtils;
         import com.badlogic.gdx.math.Rectangle;
         import com.spacegdx.game.Enemy;
-        import com.spacegdx.game.EnemyLaser;
+        import com.spacegdx.game.Laser;
 
 /**
  * Created by jeremy on 5/23/15.
@@ -68,7 +68,7 @@ public class Asteroid extends Enemy{
     }
 
     @Override
-    public EnemyLaser spawnLaser() {
+    public Laser spawnLaser() {
         return null;
     }
 

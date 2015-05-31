@@ -28,15 +28,17 @@ public class Game extends ApplicationAdapter {
 	Vector3 touchPos;
 	public Ship ship;
 	public EnemyHandler eHand;
+	public ShipHandler sHand;
 	static ArrayList<Flash> booms;
 	FileHandle highScore, fontHomespun, fontEroded, fontHomeLarge, shipFile;
 	int lastHighScore;
 	BitmapFont font, menuFont, titleFont;
 	static public int score;
 	float backgroundY;
-	boolean menuFlag = false;
-	boolean endFlag = false;
-	boolean dbFlag = false;
+	boolean menuFlag = true;
+	boolean endFlag = true;
+	boolean dbFlag = true;
+	boolean touchdb = false;
 
 	// fun with enums!
 
@@ -46,65 +48,7 @@ public class Game extends ApplicationAdapter {
 		GAME,
 		END
 	}
-	public enum ShipSelect{
-		BASIC,
-		POWER
-	}
 
-	void decrementSS(){
-		switch(shipSelect){
-			case BASIC:
-				shipSelect = ShipSelect.POWER;
-				break;
-			case POWER:
-				shipSelect = ShipSelect.BASIC;
-				break;
-			default:
-				shipSelect = ShipSelect.BASIC;
-				break;
-		}
-	}
-
-	void incrementSS(){
-		switch(shipSelect){
-			case BASIC:
-				shipSelect = ShipSelect.POWER;
-				break;
-			case POWER:
-				shipSelect = ShipSelect.BASIC;
-				break;
-			default:
-				shipSelect = ShipSelect.BASIC;
-				break;
-		}
-	}
-
-	void setSS(int i){
-		switch (i){
-			case 1:
-				shipSelect = ShipSelect.POWER;
-				break;
-			case 2:
-				shipSelect = ShipSelect.BASIC;
-				break;
-			default:
-				shipSelect = ShipSelect.BASIC;
-				break;
-
-		}
-	}
-
-	int getSS(){
-		switch (shipSelect){
-			case BASIC:
-				return 0;
-			case POWER:
-				return 1;
-			default:
-				return 0;
-		}
-	}
-	ShipSelect shipSelect = ShipSelect.BASIC;
 	State state = State.MENU;
 	@Override
 	public void create(){
@@ -146,11 +90,18 @@ public class Game extends ApplicationAdapter {
 
 		spawnBoom(ship.hitbox.x + ship.hitbox.width/2, ship.hitbox.y + ship.hitbox.height / 2, 128, 128);
 
-		endFlag = (!Gdx.input.isTouched() && !endFlag) ? true : endFlag;
-		if(Gdx.input.isTouched() && endFlag){
-			endFlag = false;
+		endFlag = (!Gdx.input.isTouched() && endFlag) ? false : endFlag;
+		if(Gdx.input.isTouched() && !endFlag){
+			endFlag = true;
+			touchdb = true;
+
+		}else if(!Gdx.input.isTouched() && touchdb){
 			state = State.MENU;
+			touchdb = false;
+			endFlag = true;
 		}
+
+		//endFlag = Gdx.input.isTouched();
 
 		//---------------------------------------------------------------------------------------
 		sBatch.begin();
@@ -173,11 +124,14 @@ public class Game extends ApplicationAdapter {
 		camera.update();
 		sBatch.setProjectionMatrix(camera.combined);
 		iterateBackground();
-		menuFlag = (!Gdx.input.isTouched() && !menuFlag) ? true : menuFlag;
-		if(Gdx.input.isTouched() && menuFlag){
+		if(Gdx.input.isTouched() && !menuFlag){
+			touchdb = true;
 			menuFlag = false;
 			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touchPos);
+
+		}else if(!Gdx.input.isTouched() && touchdb){
+			touchdb = false;
 			if(touchPos.x > 480 - 28 * 2 - 24 && touchPos.y > 800 - 31 * 2 - 24){
 				state = State.SHIP_MENU;
 			}else {
@@ -185,6 +139,8 @@ public class Game extends ApplicationAdapter {
 				state = State.GAME;
 			}
 		}
+
+		menuFlag = Gdx.input.isTouched();
 		//---------------------------------------------------------------------------------------
 		sBatch.begin();
 
@@ -196,7 +152,8 @@ public class Game extends ApplicationAdapter {
 		titleFont.draw(sBatch, "black_space", 60, 500);
 		menuFont.draw(sBatch, "TOUCH TO START", 130, 400);
 		menuFont.draw(sBatch, "highscore: " + lastHighScore, 155, 200);
-		menuFont.draw(sBatch, "ver 0.5", 3, 30);
+		menuFont.draw(sBatch, "ver 0.6", 3, 30);
+
 		sBatch.end();
 		//---------------------------------------------------------------------------------------
 
@@ -204,41 +161,33 @@ public class Game extends ApplicationAdapter {
 	}
 
 	public void shipMenuRender(){
-		Ship[] ships = new Ship[2];
-		ships[0] = new BasicShip(this);
-		ships[1] = new PowerShip(this);
-		Ship sd =  ships[0];
 		camera.update();
 		sBatch.setProjectionMatrix(camera.combined);
 
 		if(Gdx.input.isTouched() && !dbFlag) {
+			touchdb = true;
 			dbFlag = true;
 			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 			camera.unproject(touchPos);
+
+		}else if(!Gdx.input.isTouched() && touchdb){
+			touchdb = false;
 			if(touchPos.y > 700 && touchPos.x < 128){
 				state = State.MENU;
-				shipFile.writeString(Integer.toString(getSS()), false);
-				for(Ship ship : ships){
-					ship.dispose();
-				}
+				shipFile.writeString(Integer.toString(sHand.getSS()), false);
+
 			}else if((touchPos.y > 400 - 64 && touchPos.y < 400 + 64)){
 				if(touchPos.x < 24 + 64){
-					decrementSS();
+					sHand.decrement();
 				}else if(touchPos.x > 400 - 24 - 64){
-					incrementSS();
+					sHand.increment();
 				}
 			}
-		}
-		dbFlag = Gdx.input.isTouched();
 
-		switch(shipSelect){
-			case BASIC:
-				sd = ships[0];
-				break;
-			case POWER:
-				sd = ships[1];
-				break;
 		}
+
+		ship = sHand.getCurrentShip();
+		dbFlag = Gdx.input.isTouched();
 
 		iterateBackground();
 
@@ -248,7 +197,7 @@ public class Game extends ApplicationAdapter {
 		sBatch.draw(background, 0, backgroundY);
 		sBatch.draw(background, 0, backgroundY + 800);
 
-		sd.draw(sBatch, 480/2, 800/2);
+		ship.draw(sBatch, 480/2, 800/2);
 
 		sBatch.draw(arrow, 24, 400 - 64, 64, 128, 0, 0, 64, 128, false, false);
 		sBatch.draw(arrow, 480 - 24 - 64, 400 - 64, 64, 128, 0, 0, 64, 128, true, false);
@@ -315,16 +264,14 @@ public class Game extends ApplicationAdapter {
 			lastHighScore = Integer.parseInt(highScore.readString());
 		}
 		if(!shipFile.exists()){
-			shipFile.writeString(Integer.toString(getSS()), false);
+			shipFile.writeString(Integer.toString(sHand.getSS()), false);
 		}else{
-			setSS(Integer.parseInt(shipFile.readString()));
+			sHand.setSS(Integer.parseInt(shipFile.readString()));
 		}
 		font = new BitmapFont(fontHomespun);
 		menuFont = new BitmapFont(fontHomespun);
 		titleFont = new BitmapFont(fontHomeLarge);
-		Color c = new Color(0,1,1,1);
-		//font.setColor(c);
-		//menuFont.setColor(c);
+
 	}
 
 	@Override
@@ -368,22 +315,12 @@ public class Game extends ApplicationAdapter {
 	public void resetGame(){
 		score = 0;
 		booms = new ArrayList();
-		ship =  getShip();
 		eHand = new EnemyHandler(this);
+		sHand = ShipHandler.getHandler(this);
+		ship = sHand.getCurrentShip();
 	}
 
-	public Ship getShip(){
-		switch (shipSelect){
-			case BASIC:
-				return new BasicShip(this);
-			case POWER:
-				return new PowerShip(this);
-			default:
-				return new BasicShip(this);
-		}
-	}
 	public void endGame(){
-
 		state = State.END;
 	}
 }
