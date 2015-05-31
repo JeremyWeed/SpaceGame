@@ -2,6 +2,7 @@ package com.spacegdx.game;
 
 import com.spacegdx.game.Ships.BasicShip;
 import com.spacegdx.game.Ships.PowerShip;
+import com.spacegdx.game.Ships.TurretShip;
 
 /**
  * Created by Jeremy on 5/30/2015.
@@ -10,7 +11,7 @@ public class ShipHandler {
     Ship ship;
     Game game;
     int shipSelect;
-    static int maxShips = 1; //should be one less than amount of ships
+    static int maxShips = 2; //should be one less than amount of ships
     static ShipHandler shipH;
 
     private ShipHandler(Game game){
@@ -48,6 +49,8 @@ public class ShipHandler {
                 return new BasicShip(game);
             case 1:
                 return new PowerShip(game);
+            case 2:
+                return new TurretShip(game);
             default:
                 return new BasicShip(game);
         }
@@ -63,5 +66,6 @@ public class ShipHandler {
         }else{
             shipSelect = i;
         }
+        ship = setShip(shipSelect);
     }
 }
