@@ -146,7 +146,7 @@ public class Game extends ApplicationAdapter {
 
 		}else if(!Gdx.input.isTouched() && touchdb){
 			touchdb = false;
-			if(touchPos.x > 480 - 28 * 2 - 24 && touchPos.y > 800 - 31 * 2 - 24){
+			if(touchPos.x > 360 && touchPos.y > 740){
 				state = State.SHIP_MENU;
 			}else {
 				resetGame();
@@ -161,13 +161,15 @@ public class Game extends ApplicationAdapter {
 		sBatch.draw(background, 0, backgroundY);
 		sBatch.draw(background, 0, backgroundY + 800);
 
-		sBatch.draw(shipMenu, 480 - 28 * 2 - 24, 800 - 31 * 2 - 24, 28 * 2, 31 * 2);
+		//sBatch.draw(shipMenu, 480 - 28 * 2 - 24, 800 - 31 * 2 - 24, 28 * 2, 31 * 2);
 
+		menuFont.draw(sBatch, "CHANGE", 370, 780);
+		menuFont.draw(sBatch, "SHIP", 390, 750);
 		titleFont.draw(sBatch, "black_space", 60, 500);
 		menuFont.draw(sBatch, "TOUCH TO START", 130, 400);
 		menuFont.draw(sBatch, "highscore: " + lastHighScore, 155, 200);
 		menuFont.draw(sBatch, "credits: " + credits, 190, 150);
-		menuFont.draw(sBatch, "ver 0.8", 3, 30);
+		menuFont.draw(sBatch, "ver 1.0", 3, 30);
 
 		sBatch.end();
 		//---------------------------------------------------------------------------------------
