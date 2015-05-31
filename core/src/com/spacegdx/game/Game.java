@@ -5,7 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -13,8 +12,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.spacegdx.game.Ships.BasicShip;
-import com.spacegdx.game.Ships.PowerShip;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,18 +22,21 @@ public class Game extends ApplicationAdapter {
 	Texture boom;
 	Texture shipMenu;
 	Texture arrow;
+	Texture lock;
 	OrthographicCamera camera;
 	SpriteBatch sBatch;
 	Vector3 touchPos;
 	Music gameTheme;
 	Music menuTheme;
 	Sound endExplosion;
+	Sound button;
 	public Ship ship;
 	public EnemyHandler eHand;
 	public ShipHandler sHand;
 	static ArrayList<Flash> booms;
-	FileHandle highScore, fontHomespun, fontEroded, fontHomeLarge, shipFile;
+	FileHandle highScore, fontHomespun, fontEroded, fontHomeLarge, shipFile, creditFile;
 	int lastHighScore;
+	int credits;
 	BitmapFont font, menuFont, titleFont;
 	static public int score;
 	float backgroundY;
@@ -97,6 +97,7 @@ public class Game extends ApplicationAdapter {
 
 		endFlag = (!Gdx.input.isTouched() && endFlag) ? false : endFlag;
 		if(Gdx.input.isTouched() && !endFlag){
+			button.play();
 			endFlag = true;
 			touchdb = true;
 
@@ -121,6 +122,7 @@ public class Game extends ApplicationAdapter {
 		titleFont.draw(sBatch, "GAME OVER", 75, 500);
 		menuFont.draw(sBatch, "score: " + score, 185, 400);
 		menuFont.draw(sBatch, "highscore: " + ((score > lastHighScore) ? score : lastHighScore), 155, 350);
+		menuFont.draw(sBatch, "credits: " + credits + " (+" + score / 10 + ")",150, 200 );
 		sBatch.end();
 		//---------------------------------------------------------------------------------------
 	}
@@ -132,9 +134,11 @@ public class Game extends ApplicationAdapter {
 
 		if(!menuTheme.isPlaying()){
 			menuTheme.play();
+			menuTheme.setVolume(.5f);
 			menuTheme.setLooping(true);
 		}
 		if(Gdx.input.isTouched() && !menuFlag){
+			button.play();
 			touchdb = true;
 			menuFlag = false;
 			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
@@ -162,7 +166,8 @@ public class Game extends ApplicationAdapter {
 		titleFont.draw(sBatch, "black_space", 60, 500);
 		menuFont.draw(sBatch, "TOUCH TO START", 130, 400);
 		menuFont.draw(sBatch, "highscore: " + lastHighScore, 155, 200);
-		menuFont.draw(sBatch, "ver 0.7", 3, 30);
+		menuFont.draw(sBatch, "credits: " + credits, 190, 150);
+		menuFont.draw(sBatch, "ver 0.8", 3, 30);
 
 		sBatch.end();
 		//---------------------------------------------------------------------------------------
@@ -176,6 +181,7 @@ public class Game extends ApplicationAdapter {
 
 		if(!menuTheme.isPlaying()){
 			menuTheme.play();
+			menuTheme.setVolume(.5f);
 			menuTheme.setLooping(true);
 		}
 
@@ -188,20 +194,29 @@ public class Game extends ApplicationAdapter {
 		}else if(!Gdx.input.isTouched() && touchdb){
 			touchdb = false;
 			if(touchPos.y > 700 && touchPos.x < 128){
+				button.play();
 				state = State.MENU;
-				shipFile.writeString(Integer.toString(sHand.getSS()), false);
+				sHand.updateFile();
 
 			}else if((touchPos.y > 400 - 64 && touchPos.y < 400 + 64)){
 				if(touchPos.x < 24 + 64){
+					button.play();
 					sHand.decrement();
 				}else if(touchPos.x > 400 - 24 - 64){
+					button.play();
 					sHand.increment();
+				}
+			}else if((touchPos. y < 300 && touchPos.y > 200) && touchPos.x > 170 && touchPos.x < 310){
+				button.play();
+				if(credits > sHand.getPrice(sHand.shipSelect)){
+					credits -= sHand.getPrice(sHand.shipSelect);
+					sHand.unlock(sHand.shipSelect);
 				}
 			}
 
 		}
 
-		ship = sHand.getCurrentShip();
+		ship = sHand.getPlayerShip();
 		dbFlag = Gdx.input.isTouched();
 
 		iterateBackground();
@@ -212,11 +227,19 @@ public class Game extends ApplicationAdapter {
 		sBatch.draw(background, 0, backgroundY);
 		sBatch.draw(background, 0, backgroundY + 800);
 
-		ship.draw(sBatch, 480/2, 800/2);
+		sHand.getSSShip().draw(sBatch, 480 / 2, 800 / 2);
+
+		if(!sHand.isUnlocked(sHand.shipSelect)){
+			sBatch.draw(lock, 200 + 20 , 400 - 20);
+			menuFont.draw(sBatch, "Unlock", 200, 300);
+			menuFont.draw(sBatch, "for", 220, 262);
+			menuFont.draw(sBatch, sHand.getPrice(sHand.shipSelect) + " credits", 170, 225);
+		}
 
 		sBatch.draw(arrow, 24, 400 - 64, 64, 128, 0, 0, 64, 128, false, false);
 		sBatch.draw(arrow, 480 - 24 - 64, 400 - 64, 64, 128, 0, 0, 64, 128, true, false);
 		menuFont.draw(sBatch, "BACK", 24, 800 - 24);
+		menuFont.draw(sBatch, "credits: " + credits, 160, 650);
 
 		sBatch.end();
 		//---------------------------------------------------------------------------------------
@@ -270,16 +293,18 @@ public class Game extends ApplicationAdapter {
 		boom = new Texture("boom.png");
 		shipMenu = new Texture("shipMenu.png");
 		arrow = new Texture("arrow.png");
+		lock = new Texture("lock.png");
 		camera =  new OrthographicCamera();
 		camera.setToOrtho(false, 480, 800);
 		sBatch =  new SpriteBatch();
-		menuTheme = Gdx.audio.newMusic(Gdx.files.internal("sound/176683__alaupas__space3.mp3"));
+		menuTheme = Gdx.audio.newMusic(Gdx.files.internal("sound/22453__nathanshadow__space-ambient.wav"));
 		gameTheme = Gdx.audio.newMusic(Gdx.files.internal("sound/251461__joshuaempyre__arcade-music-loop.wav"));
 		endExplosion = Gdx.audio.newSound(Gdx.files.internal("sound/104397__kantouth__dark-energy-exp.wav"));
-		resetGame();
+		button = Gdx.audio.newSound(Gdx.files.internal("sound/146717__fins__button.wav"));
 		touchPos = new Vector3();
 		highScore = Gdx.files.local("highScore.txt");
 		shipFile = Gdx.files.local("ships.txt");
+		creditFile = Gdx.files.local("credits");
 		fontHomespun = Gdx.files.internal("fonts/homespun/homespun.fnt");
 		fontEroded =  Gdx.files.internal("fonts/spaceship/spaceship.fnt");
 		fontHomeLarge = Gdx.files.internal("fonts/homeLarge/homeLarge.fnt");
@@ -288,14 +313,15 @@ public class Game extends ApplicationAdapter {
 		}else{
 			lastHighScore = Integer.parseInt(highScore.readString());
 		}
-		if(!shipFile.exists()){
-			shipFile.writeString(Integer.toString(sHand.getSS()), false);
+		if(!creditFile.exists()){
+			creditFile.writeString(Integer.toString(0), false);
 		}else{
-			sHand.setSS(Integer.parseInt(shipFile.readString()));
+			credits = Integer.parseInt(creditFile.readString());
 		}
 		font = new BitmapFont(fontHomespun);
 		menuFont = new BitmapFont(fontHomespun);
 		titleFont = new BitmapFont(fontHomeLarge);
+		resetGame();
 
 	}
 
@@ -342,13 +368,15 @@ public class Game extends ApplicationAdapter {
 		score = 0;
 		booms = new ArrayList();
 		eHand = new EnemyHandler(this);
-		sHand = ShipHandler.getHandler(this);
-		ship = sHand.getCurrentShip();
+		sHand = ShipHandler.getHandler(this, shipFile);
+		ship = sHand.getPlayerShip();
 	}
 
 	public void endGame(){
 		state = State.END;
 		endExplosion.play();
 		gameTheme.stop();
+		credits += score / 10;
+		creditFile.writeString(Integer.toString(credits), false);
 	}
 }

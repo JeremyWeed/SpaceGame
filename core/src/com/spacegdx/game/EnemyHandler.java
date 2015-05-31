@@ -17,7 +17,7 @@ import java.util.Iterator;
 public class EnemyHandler {
     ArrayList<Enemy> enemies;
     ArrayList<Laser> lasers;
-    Sound explosion;
+    Sound explosion, laserFire;
     int speed;
     long spawnDelayBasic;
     long lastSpawnTimeBasic;
@@ -33,6 +33,7 @@ public class EnemyHandler {
         spawnDelayBasic = 1000000000;
         speedConst = TimeUtils.nanoTime();
         explosion = Gdx.audio.newSound(Gdx.files.internal("sound/170144__timgormly__8-bit-explosion2.wav"));
+        laserFire = Gdx.audio.newSound(Gdx.files.internal("sound/39459__the-bizniss__laser.wav"));
 
     }
 
@@ -54,6 +55,7 @@ public class EnemyHandler {
             if(MathUtils.random(0,100) > 99){
                 Laser e = enemy.spawnLaser();
                 if(e != null){
+                    laserFire.play();
                     lasers.add(e);
                 }
             }
