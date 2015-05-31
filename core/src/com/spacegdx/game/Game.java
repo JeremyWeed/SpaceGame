@@ -2,6 +2,8 @@ package com.spacegdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -26,6 +28,9 @@ public class Game extends ApplicationAdapter {
 	OrthographicCamera camera;
 	SpriteBatch sBatch;
 	Vector3 touchPos;
+	Music gameTheme;
+	Music menuTheme;
+	Sound endExplosion;
 	public Ship ship;
 	public EnemyHandler eHand;
 	public ShipHandler sHand;
@@ -124,6 +129,11 @@ public class Game extends ApplicationAdapter {
 		camera.update();
 		sBatch.setProjectionMatrix(camera.combined);
 		iterateBackground();
+
+		if(!menuTheme.isPlaying()){
+			menuTheme.play();
+			menuTheme.setLooping(true);
+		}
 		if(Gdx.input.isTouched() && !menuFlag){
 			touchdb = true;
 			menuFlag = false;
@@ -152,7 +162,7 @@ public class Game extends ApplicationAdapter {
 		titleFont.draw(sBatch, "black_space", 60, 500);
 		menuFont.draw(sBatch, "TOUCH TO START", 130, 400);
 		menuFont.draw(sBatch, "highscore: " + lastHighScore, 155, 200);
-		menuFont.draw(sBatch, "ver 0.6", 3, 30);
+		menuFont.draw(sBatch, "ver 0.7", 3, 30);
 
 		sBatch.end();
 		//---------------------------------------------------------------------------------------
@@ -163,6 +173,11 @@ public class Game extends ApplicationAdapter {
 	public void shipMenuRender(){
 		camera.update();
 		sBatch.setProjectionMatrix(camera.combined);
+
+		if(!menuTheme.isPlaying()){
+			menuTheme.play();
+			menuTheme.setLooping(true);
+		}
 
 		if(Gdx.input.isTouched() && !dbFlag) {
 			touchdb = true;
@@ -212,6 +227,13 @@ public class Game extends ApplicationAdapter {
 	public void gameRender(){
 		camera.update();
 		sBatch.setProjectionMatrix(camera.combined);
+		if(!gameTheme.isPlaying()){
+			gameTheme.play();
+			gameTheme.setLooping(true);
+		}
+		if(menuTheme.isPlaying()){
+			menuTheme.stop();
+		}
 
 		if(Gdx.input.isTouched()){
 			touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
@@ -251,6 +273,9 @@ public class Game extends ApplicationAdapter {
 		camera =  new OrthographicCamera();
 		camera.setToOrtho(false, 480, 800);
 		sBatch =  new SpriteBatch();
+		menuTheme = Gdx.audio.newMusic(Gdx.files.internal("sound/176683__alaupas__space3.mp3"));
+		gameTheme = Gdx.audio.newMusic(Gdx.files.internal("sound/251461__joshuaempyre__arcade-music-loop.wav"));
+		endExplosion = Gdx.audio.newSound(Gdx.files.internal("sound/104397__kantouth__dark-energy-exp.wav"));
 		resetGame();
 		touchPos = new Vector3();
 		highScore = Gdx.files.local("highScore.txt");
@@ -279,6 +304,7 @@ public class Game extends ApplicationAdapter {
 		ship.dispose();
 		background.dispose();
 		eHand.dispose();
+		gameTheme.dispose();
 	}
 
 	public void iterateBackground(){
@@ -322,5 +348,7 @@ public class Game extends ApplicationAdapter {
 
 	public void endGame(){
 		state = State.END;
+		endExplosion.play();
+		gameTheme.stop();
 	}
 }

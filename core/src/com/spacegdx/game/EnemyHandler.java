@@ -1,5 +1,7 @@
 package com.spacegdx.game;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -15,6 +17,7 @@ import java.util.Iterator;
 public class EnemyHandler {
     ArrayList<Enemy> enemies;
     ArrayList<Laser> lasers;
+    Sound explosion;
     int speed;
     long spawnDelayBasic;
     long lastSpawnTimeBasic;
@@ -29,6 +32,8 @@ public class EnemyHandler {
         speed = 100;
         spawnDelayBasic = 1000000000;
         speedConst = TimeUtils.nanoTime();
+        explosion = Gdx.audio.newSound(Gdx.files.internal("sound/170144__timgormly__8-bit-explosion2.wav"));
+
     }
 
     public void iterate(){
@@ -95,6 +100,7 @@ public class EnemyHandler {
 
     public void kill(Enemy e){
         try{
+            explosion.play();
             enemies.remove(e);
             Game.spawnBoom(e.hitbox.x + e.width/2, e.hitbox.y + e.height/2);
             speed += 2;

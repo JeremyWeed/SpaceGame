@@ -1,6 +1,7 @@
 package com.spacegdx.game.Ships;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Intersector;
@@ -24,6 +25,7 @@ public class TurretShip extends Ship {
     ArrayList<TurretLaser> lasers;
     Texture turret, laserT;
     Rectangle hitbox2;
+    Sound laserFire;
     public long lastLaserFireTime, laserFireDelay;
     int laserSpeed;
     double p = 8;
@@ -73,7 +75,7 @@ public class TurretShip extends Ship {
         laserFireDelay = 200000000;
         startTime = TimeUtils.millis();
         hitbox2 = new Rectangle(hitbox.x, 15 * scale, width - 2 * scale, 5 * scale);
-
+        laserFire = Gdx.audio.newSound(Gdx.files.internal("sound/39459__the-bizniss__laser.wav"));
     }
 
     @Override
@@ -108,6 +110,7 @@ public class TurretShip extends Ship {
     @Override
     public void spawnLaser() {
         if(TimeUtils.timeSinceNanos(lastLaserFireTime) > laserFireDelay) {
+            laserFire.play();
             lasers.add(new TurretLaser(hitbox.x + width - 3 * scale + 17 * scale * -MathUtils.sinDeg(turretAngle),
                     hitbox.y + height/2 - 8 * scale - 20 * scale * -MathUtils.cosDeg(turretAngle), turretAngle));
             lastLaserFireTime = TimeUtils.nanoTime();

@@ -1,6 +1,7 @@
 package com.spacegdx.game.Ships;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
@@ -18,9 +19,10 @@ import java.util.Iterator;
 public class PowerShip extends Ship {
     ArrayList<Rectangle> lasers;
     Texture laser;
+    Sound laserFire;
     public long lastLaserFireTime, laserFireDelay;
     int laserSpeed;
-    double p = 4;
+    double p = 6;
     double i = .01;
     double d = .3;
     double desiredX, desiredY;
@@ -29,11 +31,13 @@ public class PowerShip extends Ship {
     float maxSpeed = 300;
 
     public PowerShip(Game game) {
-        super(new Texture("ship2.png"), 40, 65, 40, 55, 1.5f, game);
+        super(new Texture("ship2.png"), 40, 65, 40, 55, 1.2f, game);
         lasers = new ArrayList();
         laser = new Texture("long_laser.png");
         laserSpeed = 400;
-        laserFireDelay = 500000000;
+        laserFireDelay = 350000000;
+        laserFire = Gdx.audio.newSound(Gdx.files.internal("sound/151022__bubaproducer__laser-shot-silenced.wav"));
+
     }
 
     @Override
@@ -65,6 +69,7 @@ public class PowerShip extends Ship {
     @Override
     public void spawnLaser() {
         if(TimeUtils.timeSinceNanos(lastLaserFireTime) > laserFireDelay){
+            laserFire.play(.5f);
             Rectangle laserD = new Rectangle();
 
             laserD.x = hitbox.x + 4 * scale;

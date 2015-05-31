@@ -1,6 +1,7 @@
 package com.spacegdx.game.Ships;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
@@ -20,6 +21,7 @@ public class BasicShip extends Ship {
     ArrayList<Rectangle> lasersL;
     Texture laserR, laserL;
     Rectangle hitbox2;
+    Sound laserFire;
     int laserSpeed;
     public long lastLaserFireTime, laserFireDelay;
     double p = 8;
@@ -35,6 +37,7 @@ public class BasicShip extends Ship {
         lasersL = new ArrayList();
         laserR = new Texture("laserR.png");
         laserL = new Texture("laserL.png");
+        laserFire = Gdx.audio.newSound(Gdx.files.internal("sound/128229__kafokafo__laser_short.wav"));
         laserSpeed = 500;
         laserFireDelay = 375000000;
         hitbox2 = new Rectangle(0,0,width, 4);
@@ -87,16 +90,17 @@ public class BasicShip extends Ship {
 
     public void spawnLaser(){
         if(TimeUtils.timeSinceNanos(lastLaserFireTime) > laserFireDelay){
+            laserFire.play(.5f);
             Rectangle laserL = new Rectangle();
             Rectangle laserR = new Rectangle();
 
-            laserR.x = hitbox.x + (width * 2) / 5;
+            laserR.x = hitbox.x + (width * 2) / 5 + 2;
             laserR.y = hitbox.y + 4;
             laserR.height = 8;
             laserR.width = 6;
             lasersR.add(laserR);
 
-            laserL.x = hitbox.x - (width * 2) / 5;
+            laserL.x = hitbox.x - (width * 2) / 5 + 2;
             laserL.y = hitbox.y + 4;
             laserL.height = 8;
             laserL.width = 6;
@@ -157,5 +161,6 @@ public class BasicShip extends Ship {
         super.dispose();
         laserR.dispose();
         laserL.dispose();
+        laserFire.dispose();
     }
 }
