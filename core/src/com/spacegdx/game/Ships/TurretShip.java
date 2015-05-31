@@ -3,6 +3,7 @@ package com.spacegdx.game.Ships;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
@@ -14,13 +15,15 @@ import com.spacegdx.game.Ship;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by Jeremy on 5/30/2015.
  */
 public class TurretShip extends Ship {
-    ArrayList<Laser> lasers;
+    ArrayList<TurretLaser> lasers;
     Texture turret, laserT;
+    Rectangle hitbox2;
     public long lastLaserFireTime, laserFireDelay;
     int laserSpeed;
     double p = 8;
@@ -33,7 +36,7 @@ public class TurretShip extends Ship {
     long startTime;
 
     class TurretLaser extends Laser{
-        float speed = 100;
+        float speed = laserSpeed;
         float angle;
         Polygon hitgon;
         float xSpd, ySpd;
@@ -43,9 +46,9 @@ public class TurretShip extends Ship {
             hitgon.setOrigin(hitbox.width / 2, hitbox.height / 2);
             hitgon.setPosition(x, y);
             this.angle = angle;
-            hitgon.rotate(angle);
-            xSpd = speed * MathUtils.cos(angle);
-            ySpd = Math.abs(speed * MathUtils.sin(angle));
+            hitgon.rotate(MathUtils.degreesToRadians * angle);
+            ySpd = speed * MathUtils.cosDeg(angle);
+            xSpd = speed * -MathUtils.sinDeg(angle);
         }
 
         @Override
@@ -64,11 +67,12 @@ public class TurretShip extends Ship {
 
     public TurretShip(Game game) {
         super(new Texture("turret_ship/turret_ship.png"), 26, 34, 4, 30, 2f, game);
-        lasers = new ArrayList<Laser>();
+        lasers = new ArrayList<TurretLaser>();
         turret = new Texture("turret_ship/turret.png");
         laserSpeed = 600;
         laserFireDelay = 200000000;
         startTime = TimeUtils.millis();
+        hitbox2 = new Rectangle(hitbox.x, 15 * scale, width - 2 * scale, 5 * scale);
 
     }
 
@@ -104,16 +108,36 @@ public class TurretShip extends Ship {
     @Override
     public void spawnLaser() {
         if(TimeUtils.timeSinceNanos(lastLaserFireTime) > laserFireDelay) {
-            lasers.add(new TurretLaser(hitbox.x + width / 2 - 1 * scale + 20 * scale * MathUtils.cos(turretAngle),
-                    hitbox.y + height / 2 + 8 * scale + 20 * scale * MathUtils.sin(turretAngle), turretAngle));
+            lasers.add(new TurretLaser(hitbox.x + width - 3 * scale + 17 * scale * -MathUtils.sinDeg(turretAngle),
+                    hitbox.y + height/2 - 8 * scale - 20 * scale * -MathUtils.cosDeg(turretAngle), turretAngle));
             lastLaserFireTime = TimeUtils.nanoTime();
         }
     }
 
     @Override
     public void iterateLaser(ArrayList<Enemy> enemies) {
-        for(Laser laser : lasers){
+        ArrayList<Enemy> livingDead = new ArrayList<Enemy>();
+        Iterator<TurretLaser> iter = lasers.iterator();
+        ArrayList<TurretLaser> lostLasers = new ArrayList<TurretLaser>();
+        while(iter.hasNext()){
+            TurretLaser laser = iter.next();
+            Iterator<Enemy> iterE = enemies.iterator();
+            while(iterE.hasNext()) {
+                Enemy enemy = iterE.next();
+                if (isCollision(laser.hitgon, enemy.hitbox)) {
+                    livingDead.add(enemy);
+                }
+            }
             laser.move();
+            if(laser.hitgon.getY() > 821 || laser.hitgon.getX() > 480 || laser.hitgon.getX() - 3 * scale < 0){
+                lostLasers.add(laser);
+            }
+        }
+        for(Laser laserD : lostLasers){
+            lasers.remove(laserD);
+        }
+        for(Enemy enemy : livingDead){
+            game.eHand.kill(enemy);
         }
     }
 
@@ -133,12 +157,23 @@ public class TurretShip extends Ship {
         hitbox.x -= xSpeed * Gdx.graphics.getDeltaTime();
         hitbox.y -= ySpeed * Gdx.graphics.getDeltaTime();
 
+        hitbox2.x = hitbox.x;
+        hitbox2.y = hitbox.y + 11 * scale;
+
 
         turretAngle = (float)(30 * Math.sin((TimeUtils.nanoTime()) / 250000000.0));
     }
 
     @Override
     public boolean overlaps(Rectangle r) {
-        return false;
+        return hitbox.overlaps(r) || hitbox2.overlaps(r);
+    }
+        //copied from stack overflow
+    private boolean isCollision(Polygon p, Rectangle r) {
+        Polygon rPoly = new Polygon(new float[] { 0, 0, r.width, 0, r.width,
+                r.height, 0, r.height });
+        rPoly.setPosition(r.x, r.y);
+        return (Intersector.overlapConvexPolygons(rPoly, p));
+
     }
 }
