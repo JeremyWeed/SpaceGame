@@ -1,6 +1,7 @@
 package com.spacegdx.game;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.NumberUtils;
 import com.spacegdx.game.Ships.BasicShip;
 import com.spacegdx.game.Ships.PowerShip;
 import com.spacegdx.game.Ships.TurretShip;
@@ -40,11 +41,6 @@ public class ShipHandler {
                 for (int i = 0; i <= maxShips; i++) {
                     shipH.shipFile.writeString("0\n", true);
                 }
-            }else if(shipH.lines.size() <= maxShips){
-                shipH.shipFile.writeString("0\n", false);
-                for (int i = 1; i <= maxShips; i++) {
-                    shipH.shipFile.writeString("0\n", true);
-                }
             }
             try {
                 BufferedReader reader = new BufferedReader(shipH.shipFile.reader());
@@ -53,6 +49,18 @@ public class ShipHandler {
                     shipH.lines.add(line);
                     line = reader.readLine();
                 }
+                if(shipH.lines.size() <= maxShips){
+                    shipH.shipFile.writeString("0\n", false);
+                    for (int i = 1; i <= maxShips; i++) {
+                        shipH.shipFile.writeString("0\n", true);
+                    }
+                }
+                for(int i = 0; i <= maxShips; i++){
+                    if(shipH.lines.get(i).equals("")){
+                        shipH.lines.set(i, "0");
+                    }
+                }
+
                 shipH.setSS(Integer.parseInt(shipH.lines.get(0)));
             } catch (IOException e) {
                 e.printStackTrace();
@@ -82,12 +90,12 @@ public class ShipHandler {
 
         shipFile.writeString("", false);
         for(String line : lines) {
-            shipFile.writeString(line, true);
+            shipFile.writeString(line + "\n", true);
         }
     }
 
     public void unlock(int i){
-        lines.set(i, "1\n");
+        lines.set(i, "1");
     }
 
     public boolean isUnlocked(int i){
@@ -109,26 +117,26 @@ public class ShipHandler {
 
         switch(i){
             case 0:
-                lines.set(0, "0\n");
+                lines.set(0, "0");
                 ship = new BasicShip(game);
                 return ship;
             case 1:
                 if(Integer.parseInt(lines.get(1)) == 1){
                     ship = new PowerShip(game);
-                    lines.set(0, "1\n");
+                    lines.set(0, "1");
                     return ship;
                 }
                 return new PowerShip(game);
             case 2:
                 if(Integer.parseInt(lines.get(2)) == 1){
                     ship = new TurretShip(game);
-                    lines.set(0, "2\n");
+                    lines.set(0, "2");
                     return ship;
                 }
                 return new TurretShip(game);
             default:
                 ship = new BasicShip(game);
-                lines.set(0, "0\n");
+                lines.set(0, "0");
                 return ship;
         }
     }
