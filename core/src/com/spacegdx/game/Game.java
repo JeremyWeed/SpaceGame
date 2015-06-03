@@ -82,6 +82,7 @@ public class Game extends ApplicationAdapter {
 
 	@Override
 	public void resume(){
+		create();
 		state = State.MENU;
 	}
 
@@ -146,7 +147,7 @@ public class Game extends ApplicationAdapter {
 
 		}else if(!Gdx.input.isTouched() && touchdb){
 			touchdb = false;
-			if(touchPos.x > 360 && touchPos.y > 740){
+			if(touchPos.x > 360 && touchPos.y > 720){
 				state = State.SHIP_MENU;
 			}else {
 				resetGame();
@@ -210,7 +211,7 @@ public class Game extends ApplicationAdapter {
 				}
 			}else if((touchPos. y < 300 && touchPos.y > 200) && touchPos.x > 170 && touchPos.x < 310){
 				button.play();
-				if(credits > sHand.getPrice(sHand.shipSelect)){
+				if(credits > sHand.getPrice(sHand.shipSelect) && !sHand.isUnlocked(sHand.shipSelect)){
 					credits -= sHand.getPrice(sHand.shipSelect);
 					sHand.unlock(sHand.shipSelect);
 				}
@@ -310,6 +311,7 @@ public class Game extends ApplicationAdapter {
 		fontHomespun = Gdx.files.internal("fonts/homespun/homespun.fnt");
 		fontEroded =  Gdx.files.internal("fonts/spaceship/spaceship.fnt");
 		fontHomeLarge = Gdx.files.internal("fonts/homeLarge/homeLarge.fnt");
+
 		if(!highScore.exists()){
 			highScore.writeString("0", false);
 		}else{
@@ -329,7 +331,6 @@ public class Game extends ApplicationAdapter {
 
 	@Override
 	public void dispose() {
-		ship.dispose();
 		background.dispose();
 		eHand.dispose();
 		gameTheme.dispose();

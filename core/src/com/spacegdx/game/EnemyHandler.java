@@ -110,7 +110,8 @@ public class EnemyHandler {
             speedConst = TimeUtils.nanoTime();
             Game.score++;
         }catch(Exception ex){
-            //don't do anything
+            ex.printStackTrace();
+            System.out.println("yo");
         }
     }
 
