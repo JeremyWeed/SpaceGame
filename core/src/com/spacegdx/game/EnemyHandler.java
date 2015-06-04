@@ -19,6 +19,7 @@ public class EnemyHandler {
     ArrayList<Laser> lasers;
     Sound explosion, laserFire;
     int speed;
+    long pauseTimeBasic, pauseTimeAster;
     long spawnDelayBasic;
     long lastSpawnTimeBasic;
     long lastSpawnTimeAster;
@@ -113,6 +114,16 @@ public class EnemyHandler {
             ex.printStackTrace();
             System.out.println("yo");
         }
+    }
+
+    public void pause(){
+        pauseTimeBasic = TimeUtils.nanoTime() - lastSpawnTimeBasic;
+        pauseTimeAster = TimeUtils.nanoTime() - lastSpawnTimeAster;
+    }
+
+    public void resume(){
+        lastSpawnTimeBasic = TimeUtils.nanoTime() - pauseTimeBasic;
+        lastSpawnTimeBasic = TimeUtils.nanoTime() - pauseTimeAster;
     }
 
 }
