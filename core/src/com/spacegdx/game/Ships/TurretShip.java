@@ -129,6 +129,7 @@ public class TurretShip extends Ship {
                 Enemy enemy = iterE.next();
                 if (isCollision(laser.hitgon, enemy.hitbox)) {
                     livingDead.add(enemy);
+                    lostLasers.add(laser);
                 }
             }
             laser.move();

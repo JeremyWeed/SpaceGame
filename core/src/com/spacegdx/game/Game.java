@@ -44,6 +44,7 @@ public class Game extends ApplicationAdapter {
 	boolean endFlag = true;
 	boolean dbFlag = true;
 	boolean touchdb = false;
+	String versionString = "1.02";
 
 	// fun with enums!
 
@@ -58,6 +59,10 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void create(){
 		gameSetup();
+		if(lastHighScore > 200){
+			lastHighScore = 0;
+			credits = 0;
+		}
 	}
 
 	@Override
@@ -80,11 +85,7 @@ public class Game extends ApplicationAdapter {
 	}
 
 
-	@Override
-	public void resume(){
-		create();
-		state = State.MENU;
-	}
+
 
 	public void endRender(){
 		if(score > lastHighScore) {
@@ -127,6 +128,7 @@ public class Game extends ApplicationAdapter {
 		sBatch.end();
 		//---------------------------------------------------------------------------------------
 	}
+
 	public void menuRender(){
 
 		camera.update();
@@ -135,6 +137,7 @@ public class Game extends ApplicationAdapter {
 
 		if(!menuTheme.isPlaying()){
 			menuTheme.play();
+			gameTheme.stop();
 			menuTheme.setVolume(.5f);
 			menuTheme.setLooping(true);
 		}
@@ -170,7 +173,7 @@ public class Game extends ApplicationAdapter {
 		menuFont.draw(sBatch, "TOUCH TO START", 130, 400);
 		menuFont.draw(sBatch, "highscore: " + lastHighScore, 155, 200);
 		menuFont.draw(sBatch, "credits: " + credits, 190, 150);
-		menuFont.draw(sBatch, "ver 1.0", 3, 30);
+		menuFont.draw(sBatch, "ver " + versionString, 3, 30);
 
 		sBatch.end();
 		//---------------------------------------------------------------------------------------
@@ -184,6 +187,7 @@ public class Game extends ApplicationAdapter {
 
 		if(!menuTheme.isPlaying()){
 			menuTheme.play();
+			gameTheme.stop();
 			menuTheme.setVolume(.5f);
 			menuTheme.setLooping(true);
 		}
@@ -208,10 +212,14 @@ public class Game extends ApplicationAdapter {
 				}else if(touchPos.x > 400 - 24 - 64){
 					button.play();
 					sHand.increment();
+				}else{
+					button.play();
+					state = State.MENU;
+					sHand.updateFile();
 				}
 			}else if((touchPos. y < 300 && touchPos.y > 200) && touchPos.x > 170 && touchPos.x < 310){
-				button.play();
-				if(credits > sHand.getPrice(sHand.shipSelect) && !sHand.isUnlocked(sHand.shipSelect)){
+				if(credits >= sHand.getPrice(sHand.shipSelect) && !sHand.isUnlocked(sHand.shipSelect)){
+					button.play();
 					credits -= sHand.getPrice(sHand.shipSelect);
 					sHand.unlock(sHand.shipSelect);
 				}
@@ -247,8 +255,6 @@ public class Game extends ApplicationAdapter {
 		sBatch.end();
 		//---------------------------------------------------------------------------------------
 	}
-
-
 
 	public void gameRender(){
 		camera.update();
@@ -311,7 +317,7 @@ public class Game extends ApplicationAdapter {
 		fontHomespun = Gdx.files.internal("fonts/homespun/homespun.fnt");
 		fontEroded =  Gdx.files.internal("fonts/spaceship/spaceship.fnt");
 		fontHomeLarge = Gdx.files.internal("fonts/homeLarge/homeLarge.fnt");
-
+		sHand = ShipHandler.getHandler(this, shipFile, true);
 		if(!highScore.exists()){
 			highScore.writeString("0", false);
 		}else{
@@ -334,6 +340,20 @@ public class Game extends ApplicationAdapter {
 		background.dispose();
 		eHand.dispose();
 		gameTheme.dispose();
+	}
+
+	@Override
+	public void pause(){
+		if(score > lastHighScore) {
+			highScore.writeString(Integer.toString(score), false);
+			lastHighScore = score;
+		}
+		eHand.pause();
+	}
+
+	@Override
+	public void resume(){
+		eHand.resume();
 	}
 
 	public void iterateBackground(){
@@ -371,8 +391,8 @@ public class Game extends ApplicationAdapter {
 		score = 0;
 		booms = new ArrayList();
 		eHand = new EnemyHandler(this);
-		sHand = ShipHandler.getHandler(this, shipFile);
-		ship = sHand.getPlayerShip();
+		sHand = ShipHandler.getHandler(this, shipFile, false);
+		ship = sHand.getNewShip();
 	}
 
 	public void endGame(){

@@ -32,8 +32,8 @@ public class ShipHandler {
         ship = new BasicShip(game);
     }
 
-    public static ShipHandler getHandler(Game game, FileHandle sf){
-        if(shipH == null){
+    public static ShipHandler getHandler(Game game, FileHandle sf, boolean forceReload){
+        if(shipH == null || forceReload){
             shipH = new ShipHandler(game);
             shipH.shipFile = sf;
             shipH.lines = new ArrayList<String>();
@@ -72,6 +72,10 @@ public class ShipHandler {
 
     public Ship getPlayerShip(){
         return ship;
+    }
+
+    public Ship getNewShip(){
+        return setShip(shipSelect);
     }
 
     public void increment(){
