@@ -4,6 +4,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.NumberUtils;
 import com.spacegdx.game.Ships.BasicShip;
 import com.spacegdx.game.Ships.PowerShip;
+import com.spacegdx.game.Ships.ToastShip;
 import com.spacegdx.game.Ships.TurretShip;
 
 import java.io.BufferedReader;
@@ -21,9 +22,9 @@ public class ShipHandler {
     Ship ship;
     Game game;
     ArrayList<String> lines;
-    int[] prices = {100, 150};
+    int[] prices = {100, 150, 125};
     int shipSelect;
-    static int maxShips = 2; //should be one less than amount of ships
+    static int maxShips = 3; //should be one less than amount of ships
     static ShipHandler shipH;
     FileHandle shipFile;
 
@@ -138,6 +139,13 @@ public class ShipHandler {
                     return ship;
                 }
                 return new TurretShip(game);
+            case 3:
+                if(Integer.parseInt(lines.get(3)) == 1){
+                    ship = new ToastShip(game);
+                    lines.set(0, "3");
+                    return ship;
+                }
+                return new ToastShip(game);
             default:
                 ship = new BasicShip(game);
                 lines.set(0, "0");

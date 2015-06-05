@@ -20,6 +20,7 @@ public class EnemyHandler {
     Sound explosion, laserFire;
     int speed;
     long pauseTimeBasic, pauseTimeAster;
+    long pauseSpeedConst;
     long spawnDelayBasic;
     long lastSpawnTimeBasic;
     long lastSpawnTimeAster;
@@ -119,11 +120,13 @@ public class EnemyHandler {
     public void pause(){
         pauseTimeBasic = TimeUtils.nanoTime() - lastSpawnTimeBasic;
         pauseTimeAster = TimeUtils.nanoTime() - lastSpawnTimeAster;
+        pauseSpeedConst = TimeUtils.nanoTime() - speedConst;
     }
 
     public void resume(){
         lastSpawnTimeBasic = TimeUtils.nanoTime() - pauseTimeBasic;
         lastSpawnTimeBasic = TimeUtils.nanoTime() - pauseTimeAster;
+        speedConst = TimeUtils.nanoTime() - pauseSpeedConst;
     }
 
 }
