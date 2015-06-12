@@ -39,6 +39,7 @@ public class ToastShip extends Ship {
         laserSpeed = 700;
         laserFireDelay = 175000000;
         hitbox2 = new Rectangle(0,0,width, 5);
+        price = 125;
     }
 
 
@@ -83,7 +84,7 @@ public class ToastShip extends Ship {
             }
             spawnSide = !spawnSide;
             laser.y = hitbox2.y;
-            laser.height = 4 * scale;
+            laser.height = 8 * scale;
             laser.width = 1 * scale;
             lasers.add(laser);
 

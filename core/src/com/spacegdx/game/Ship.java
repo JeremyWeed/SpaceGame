@@ -15,6 +15,7 @@ public abstract class Ship {
     public float width, height, scale;
     public Rectangle hitbox;
     public Game game;
+    public int price;
 
     public Ship(Texture t, float width, float height, float recX, float recY, float scale, Game game){
         this.t = t;

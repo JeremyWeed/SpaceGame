@@ -76,6 +76,7 @@ public class TurretShip extends Ship {
         startTime = TimeUtils.millis();
         hitbox2 = new Rectangle(hitbox.x, 15 * scale, width - 2 * scale, 5 * scale);
         laserFire = Gdx.audio.newSound(Gdx.files.internal("sound/39459__the-bizniss__laser.wav"));
+        price = 150;
     }
 
     @Override

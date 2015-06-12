@@ -1,6 +1,7 @@
 package com.spacegdx.game;
 
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.NumberUtils;
 import com.spacegdx.game.Ships.BasicShip;
 import com.spacegdx.game.Ships.PowerShip;
@@ -22,11 +23,16 @@ public class ShipHandler {
     Ship ship;
     Game game;
     ArrayList<String> lines;
-    int[] prices = {100, 150, 125};
+    ArrayList<Ship> ships;
     int shipSelect;
     static int maxShips = 3; //should be one less than amount of ships
     static ShipHandler shipH;
     FileHandle shipFile;
+
+    private class ShipSON{
+        boolean uToast = false, uPower = false, uTurret = false;
+        int shipSelect = 0;
+    }
 
     private ShipHandler(Game game){
         this.game = game;
@@ -38,10 +44,9 @@ public class ShipHandler {
             shipH = new ShipHandler(game);
             shipH.shipFile = sf;
             shipH.lines = new ArrayList<String>();
+            Json json = new Json();
             if(!shipH.shipFile.exists()) {
-                for (int i = 0; i <= maxShips; i++) {
-                    shipH.shipFile.writeString("0\n", true);
-                }
+
             }
             try {
                 BufferedReader reader = new BufferedReader(shipH.shipFile.reader());
@@ -71,12 +76,20 @@ public class ShipHandler {
         return shipH;
     }
 
+    public void genShips(){
+        ships.set(0, new BasicShip(this.game));
+        ships.set(1, new ToastShip(this.game));
+        ships.set(2, new PowerShip(this.game));
+        ships.set(3, new TurretShip(this.game));
+    }
+
     public Ship getPlayerShip(){
         return ship;
     }
 
     public Ship getNewShip(){
-        return setShip(shipSelect);
+        setShip(shipSelect);
+        return ship;
     }
 
     public void increment(){
@@ -111,10 +124,7 @@ public class ShipHandler {
     }
 
     public int getPrice(int i){
-        if(i == 0){
-            return 0;
-        }
-        return prices[i - 1];
+        return ship.price;
     }
 
     Ship setShip(int i){

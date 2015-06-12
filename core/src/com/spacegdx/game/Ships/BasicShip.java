@@ -41,6 +41,7 @@ public class BasicShip extends Ship {
         laserSpeed = 500;
         laserFireDelay = 375000000;
         hitbox2 = new Rectangle(0,0,width, 4);
+        price = 0;
     }
 
     public void moveTo(float x, float y){

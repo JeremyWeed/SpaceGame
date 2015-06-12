@@ -37,7 +37,7 @@ public class PowerShip extends Ship {
         laserSpeed = 400;
         laserFireDelay = 350000000;
         laserFire = Gdx.audio.newSound(Gdx.files.internal("sound/151022__bubaproducer__laser-shot-silenced.wav"));
-
+        price = 100;
     }
 
     @Override
