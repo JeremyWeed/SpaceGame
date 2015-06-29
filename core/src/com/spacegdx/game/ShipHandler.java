@@ -1,7 +1,9 @@
 package com.spacegdx.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.NumberUtils;
 import com.spacegdx.game.Ships.BasicShip;
 import com.spacegdx.game.Ships.PowerShip;
@@ -9,34 +11,38 @@ import com.spacegdx.game.Ships.ToastShip;
 import com.spacegdx.game.Ships.TurretShip;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Created by Jeremy on 5/30/2015.
  */
 public class ShipHandler {
-    Ship ship;
+    Ship currentShip, playerShip;
     Game game;
     ArrayList<String> lines;
-    ArrayList<Ship> ships;
     int shipSelect;
     static int maxShips = 3; //should be one less than amount of ships
     static ShipHandler shipH;
     FileHandle shipFile;
+    FileHandle jsonSave = Gdx.files.local("ship_save.json");
+    ShipSON shipSave = new ShipSON();
 
-    private class ShipSON{
+    private static class ShipSON{
         boolean uToast = false, uPower = false, uTurret = false;
         int shipSelect = 0;
     }
 
     private ShipHandler(Game game){
         this.game = game;
-        ship = new BasicShip(game);
+        currentShip = new BasicShip(game);
+        playerShip = new BasicShip(game);
     }
 
     public static ShipHandler getHandler(Game game, FileHandle sf, boolean forceReload){
@@ -45,130 +51,168 @@ public class ShipHandler {
             shipH.shipFile = sf;
             shipH.lines = new ArrayList<String>();
             Json json = new Json();
-            if(!shipH.shipFile.exists()) {
-
-            }
-            try {
-                BufferedReader reader = new BufferedReader(shipH.shipFile.reader());
-                String line = reader.readLine();
-                while(line != null){
-                    shipH.lines.add(line);
-                    line = reader.readLine();
-                }
-                if(shipH.lines.size() <= maxShips){
-                    shipH.shipFile.writeString("0\n", false);
-                    for (int i = 1; i <= maxShips; i++) {
-                        shipH.shipFile.writeString("0\n", true);
+            if(shipH.shipFile.exists()) {
+                try {
+                    BufferedReader reader = new BufferedReader(shipH.shipFile.reader());
+                    String line = reader.readLine();
+                    while(line != null){
+                        shipH.lines.add(line);
+                        line = reader.readLine();
                     }
-                }
-                for(int i = 0; i <= maxShips; i++){
-                    if(shipH.lines.get(i).equals("")){
-                        shipH.lines.set(i, "0");
+                    if(shipH.lines.size() <= maxShips){
+                        shipH.shipFile.writeString("0\n", false);
+                        for (int i = 1; i <= maxShips; i++) {
+                            shipH.shipFile.writeString("0\n", true);
+                        }
                     }
+                    for(int i = 0; i <= maxShips; i++){
+                        if(shipH.lines.get(i).equals("")){
+                            shipH.lines.set(i, "0");
+                        }
+                    }
+
+                    shipH.setSS(Integer.parseInt(shipH.lines.get(0)));
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+                shipH.shipSave.shipSelect = Integer.parseInt(shipH.lines.get(0));
 
-                shipH.setSS(Integer.parseInt(shipH.lines.get(0)));
-            } catch (IOException e) {
-                e.printStackTrace();
+                if(shipH.lines.get(1).equals("1")){
+                    shipH.shipSave.uPower = true;
+                }
+                if(shipH.lines.get(2).equals("1")){
+                    shipH.shipSave.uTurret = true;
+                }
+                if(shipH.lines.get(3).equals("1")){
+                    shipH.shipSave.uToast = true;
+                }
+                shipH.shipFile.delete();
+            }else if(shipH.jsonSave.exists()){
+                shipH.shipSave = json.fromJson(ShipHandler.ShipSON.class, shipH.jsonSave);
+                shipH.shipSelect = shipH.shipSave.shipSelect;
             }
-
         }
         return shipH;
     }
 
-    public void genShips(){
-        ships.set(0, new BasicShip(this.game));
-        ships.set(1, new ToastShip(this.game));
-        ships.set(2, new PowerShip(this.game));
-        ships.set(3, new TurretShip(this.game));
+    private boolean isUnlocked(int i){
+        switch (i){
+            case 0:
+                return true;
+            case 1:
+                return shipSave.uPower;
+            case 2:
+                return shipSave.uTurret;
+            case 3:
+                return shipSave.uToast;
+            default:
+                return false;
+        }
+
     }
 
     public Ship getPlayerShip(){
-        return ship;
+        return playerShip;
     }
 
-    public Ship getNewShip(){
+    public Ship getCurrentShip(){
+        return currentShip;
+    }
+    public void newShip(){
         setShip(shipSelect);
-        return ship;
     }
 
     public void increment(){
         shipSelect = (shipSelect == maxShips) ? 0 : shipSelect + 1;
         setShip(shipSelect);
-
     }
 
     public void decrement(){
         shipSelect = (shipSelect == 0) ? maxShips : shipSelect - 1;
         setShip(shipSelect);
-
     }
 
     public void updateFile(){
+        Json json = new Json();
+        json.setOutputType(JsonWriter.OutputType.json);
+        json.setIgnoreUnknownFields(true);
+        json.setUsePrototypes(false);
+        json.setTypeName(null);
+        shipSave.shipSelect = shipSelect;
+        jsonSave.writeString(json.prettyPrint(shipSave), false);
+    }
 
-        shipFile.writeString("", false);
-        for(String line : lines) {
-            shipFile.writeString(line + "\n", true);
+    public void unlock(){
+        switch (shipSelect){
+            case 0:
+                break;
+            case 1:
+                shipSave.uPower = true;
+                break;
+            case 2:
+                shipSave.uTurret = true;
+                break;
+            case 3:
+                shipSave.uToast = true;
+                break;
+            default:
+                break;
         }
     }
 
-    public void unlock(int i){
-        lines.set(i, "1");
-    }
-
-    public boolean isUnlocked(int i){
-        if(i == 0){
-            return true;
+    public boolean isUnlocked(){
+        switch(shipSelect){
+            case 0:
+                return true;
+            case 1:
+                return shipSave.uPower;
+            case 2:
+                return shipSave.uTurret;
+            case 3:
+                return shipSave.uToast;
+            default:
+                return false;
         }
-        return Integer.parseInt(lines.get(i)) == 1;
     }
 
-    public int getPrice(int i){
-        return ship.price;
+    public int getPrice(){
+        return currentShip.price;
     }
 
-    Ship setShip(int i){
+    void setShip(int i){
         //ship.dispose();
 
         switch(i){
             case 0:
-                lines.set(0, "0");
-                ship = new BasicShip(game);
-                return ship;
+                playerShip = new BasicShip(game);
+                currentShip = new BasicShip(game);
+                break;
             case 1:
-                if(Integer.parseInt(lines.get(1)) == 1){
-                    ship = new PowerShip(game);
-                    lines.set(0, "1");
-                    return ship;
+                if(shipSave.uPower){
+                    playerShip = new PowerShip(game);
                 }
-                return new PowerShip(game);
+                currentShip = new PowerShip(game);
+                break;
             case 2:
-                if(Integer.parseInt(lines.get(2)) == 1){
-                    ship = new TurretShip(game);
-                    lines.set(0, "2");
-                    return ship;
+                if(shipSave.uTurret){
+                    playerShip = new TurretShip(game);
                 }
-                return new TurretShip(game);
+                currentShip = new TurretShip(game);
+                break;
             case 3:
-                if(Integer.parseInt(lines.get(3)) == 1){
-                    ship = new ToastShip(game);
-                    lines.set(0, "3");
-                    return ship;
+                if(shipSave.uToast){
+                    playerShip = new ToastShip(game);
                 }
-                return new ToastShip(game);
+                currentShip = new ToastShip(game);
+                break;
             default:
-                ship = new BasicShip(game);
-                lines.set(0, "0");
-                return ship;
+                playerShip = new BasicShip(game);
+                currentShip = new BasicShip(game);
         }
     }
 
     public int getSS(){
         return shipSelect;
-    }
-
-    public Ship getSSShip(){
-        return setShip(shipSelect);
     }
 
     public void setSS(int i){
@@ -177,6 +221,6 @@ public class ShipHandler {
         }else{
             shipSelect = i;
         }
-        ship = setShip(shipSelect);
+        setShip(shipSelect);
     }
 }

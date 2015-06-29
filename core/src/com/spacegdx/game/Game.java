@@ -84,9 +84,6 @@ public class Game extends ApplicationAdapter {
 
 	}
 
-
-
-
 	public void endRender(){
 		if(score > lastHighScore) {
 			highScore.writeString(Integer.toString(score), false);
@@ -218,16 +215,15 @@ public class Game extends ApplicationAdapter {
 					sHand.updateFile();
 				}
 			}else if((touchPos. y < 300 && touchPos.y > 200) && touchPos.x > 170 && touchPos.x < 310){
-				if(credits >= sHand.getPrice(sHand.shipSelect) && !sHand.isUnlocked(sHand.shipSelect)){
+				if(credits >= sHand.getPrice() && !sHand.isUnlocked()){
 					button.play();
-					credits -= sHand.getPrice(sHand.shipSelect);
-					sHand.unlock(sHand.shipSelect);
+					credits -= sHand.getPrice();
+					sHand.unlock();
 				}
 			}
 
 		}
 
-		ship = sHand.getPlayerShip();
 		dbFlag = Gdx.input.isTouched();
 
 		iterateBackground();
@@ -238,13 +234,13 @@ public class Game extends ApplicationAdapter {
 		sBatch.draw(background, 0, backgroundY);
 		sBatch.draw(background, 0, backgroundY + 800);
 
-		sHand.getSSShip().draw(sBatch, 480 / 2, 800 / 2);
+		sHand.getCurrentShip().draw(sBatch, 480 / 2, 800 / 2);
 
-		if(!sHand.isUnlocked(sHand.shipSelect)){
+		if(!sHand.isUnlocked()){
 			sBatch.draw(lock, 200 + 20 , 400 - 20);
 			menuFont.draw(sBatch, "Unlock", 200, 300);
 			menuFont.draw(sBatch, "for", 220, 262);
-			menuFont.draw(sBatch, sHand.getPrice(sHand.shipSelect) + " credits", 170, 225);
+			menuFont.draw(sBatch, sHand.getPrice() + " credits", 170, 225);
 		}
 
 		sBatch.draw(arrow, 24, 400 - 64, 64, 128, 0, 0, 64, 128, false, false);
@@ -392,7 +388,9 @@ public class Game extends ApplicationAdapter {
 		booms = new ArrayList();
 		eHand = new EnemyHandler(this);
 		sHand = ShipHandler.getHandler(this, shipFile, false);
-		ship = sHand.getNewShip();
+		sHand.newShip();
+		ship = sHand.getPlayerShip();
+
 	}
 
 	public void endGame(){

@@ -3,7 +3,7 @@ android {
         baseKey {
             keyAlias 'black_space_key'
             keyPassword '1r0ckh4rd'
-            storeFile file('C:/Users/Jeremy/Google Drive/keystore/android.jks')
+            storeFile file('~/keystore/android.jks')
             storePassword '1r0ckh4rd'
         }
     }
@@ -25,6 +25,13 @@ android {
         release {
             signingConfig signingConfigs.baseKey
         }
+    }
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 22
+        signingConfig signingConfigs.baseKey
+    }
+    productFlavors {
     }
 }
 // needed to add JNI shared libraries to APK when compiling on CLI
