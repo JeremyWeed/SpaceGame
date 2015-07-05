@@ -61,7 +61,7 @@ public class ShipHandler {
                     }
                     if(shipH.lines.size() <= maxShips){
                         shipH.shipFile.writeString("0\n", false);
-                        for (int i = 1; i <= maxShips; i++) {
+                        for (int i = shipH.lines.size(); i <= maxShips; i++) {
                             shipH.shipFile.writeString("0\n", true);
                         }
                     }
