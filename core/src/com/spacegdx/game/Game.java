@@ -23,6 +23,7 @@ public class Game extends ApplicationAdapter {
 	Texture shipMenu;
 	Texture arrow;
 	Texture lock;
+	Texture speakerLoud, speakerMute;
 	OrthographicCamera camera;
 	SpriteBatch sBatch;
 	Vector3 touchPos;
@@ -44,7 +45,8 @@ public class Game extends ApplicationAdapter {
 	boolean endFlag = true;
 	boolean dbFlag = true;
 	boolean touchdb = false;
-	String versionString = "1.02";
+	boolean music = true;
+	String versionString = "1.10";
 
 	// fun with enums!
 
@@ -92,7 +94,7 @@ public class Game extends ApplicationAdapter {
 		camera.update();
 		sBatch.setProjectionMatrix(camera.combined);
 
-		spawnBoom(ship.hitbox.x + ship.hitbox.width/2, ship.hitbox.y + ship.hitbox.height / 2, 128, 128);
+		spawnBoom(ship.hitbox.x + ship.hitbox.width / 2, ship.hitbox.y + ship.hitbox.height / 2, 128, 128);
 
 		endFlag = (!Gdx.input.isTouched() && endFlag) ? false : endFlag;
 		if(Gdx.input.isTouched() && !endFlag){
@@ -132,11 +134,15 @@ public class Game extends ApplicationAdapter {
 		sBatch.setProjectionMatrix(camera.combined);
 		iterateBackground();
 
-		if(!menuTheme.isPlaying()){
+		if(!menuTheme.isPlaying() && music){
 			menuTheme.play();
 			gameTheme.stop();
 			menuTheme.setVolume(.5f);
 			menuTheme.setLooping(true);
+		}
+		if(!music && (gameTheme.isPlaying() || menuTheme.isPlaying())){
+			gameTheme.stop();
+			menuTheme.stop();
 		}
 		if(Gdx.input.isTouched() && !menuFlag){
 			button.play();
@@ -149,7 +155,9 @@ public class Game extends ApplicationAdapter {
 			touchdb = false;
 			if(touchPos.x > 360 && touchPos.y > 720){
 				state = State.SHIP_MENU;
-			}else {
+			}else if(touchPos.x > (480 - 64 - 30) && touchPos.y < (30 + 64)){
+				music = !music;
+			}else{
 				resetGame();
 				state = State.GAME;
 			}
@@ -161,6 +169,11 @@ public class Game extends ApplicationAdapter {
 
 		sBatch.draw(background, 0, backgroundY);
 		sBatch.draw(background, 0, backgroundY + 800);
+		if(music){
+			sBatch.draw(speakerLoud, 401, 15);
+		}else{
+			sBatch.draw(speakerMute, 401, 15);
+		}
 
 		//sBatch.draw(shipMenu, 480 - 28 * 2 - 24, 800 - 31 * 2 - 24, 28 * 2, 31 * 2);
 
@@ -168,8 +181,8 @@ public class Game extends ApplicationAdapter {
 		menuFont.draw(sBatch, "SHIP", 390, 750);
 		titleFont.draw(sBatch, "black_space", 60, 500);
 		menuFont.draw(sBatch, "TOUCH TO START", 130, 400);
-		menuFont.draw(sBatch, "highscore: " + lastHighScore, 155, 200);
-		menuFont.draw(sBatch, "credits: " + credits, 190, 150);
+		menuFont.draw(sBatch, "highscore: " + lastHighScore, 155, 250);
+		menuFont.draw(sBatch, "credits: " + credits, 190, 200);
 		menuFont.draw(sBatch, "ver " + versionString, 3, 30);
 
 		sBatch.end();
@@ -182,11 +195,15 @@ public class Game extends ApplicationAdapter {
 		camera.update();
 		sBatch.setProjectionMatrix(camera.combined);
 
-		if(!menuTheme.isPlaying()){
+		if(!menuTheme.isPlaying() && music){
 			menuTheme.play();
 			gameTheme.stop();
 			menuTheme.setVolume(.5f);
 			menuTheme.setLooping(true);
+		}
+		if(!music && (gameTheme.isPlaying() || menuTheme.isPlaying())){
+			gameTheme.stop();
+			menuTheme.stop();
 		}
 
 		if(Gdx.input.isTouched() && !dbFlag) {
@@ -255,11 +272,13 @@ public class Game extends ApplicationAdapter {
 	public void gameRender(){
 		camera.update();
 		sBatch.setProjectionMatrix(camera.combined);
-		if(!gameTheme.isPlaying()){
+		if(!gameTheme.isPlaying() && music){
 			gameTheme.play();
+			menuTheme.stop();
 			gameTheme.setLooping(true);
 		}
-		if(menuTheme.isPlaying()){
+		if(!music && (gameTheme.isPlaying() || menuTheme.isPlaying())){
+			gameTheme.stop();
 			menuTheme.stop();
 		}
 
@@ -299,6 +318,8 @@ public class Game extends ApplicationAdapter {
 		shipMenu = new Texture("shipMenu.png");
 		arrow = new Texture("arrow.png");
 		lock = new Texture("lock.png");
+		speakerLoud = new Texture("speaker_loud.png");
+		speakerMute = new Texture("speaker_mute.png");
 		camera =  new OrthographicCamera();
 		camera.setToOrtho(false, 480, 800);
 		sBatch =  new SpriteBatch();

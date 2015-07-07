@@ -15,8 +15,12 @@ uses-sdk
 ADDED from AndroidManifest.xml:7:5
 	android:targetSdkVersion
 		ADDED from AndroidManifest.xml:7:41
+		INJECTED from AndroidManifest.xml:0:0
+		INJECTED from AndroidManifest.xml:0:0
 	android:minSdkVersion
 		ADDED from AndroidManifest.xml:7:15
+		INJECTED from AndroidManifest.xml:0:0
+		INJECTED from AndroidManifest.xml:0:0
 uses-feature#0x00020000
 ADDED from AndroidManifest.xml:8:5
 	android:glEsVersion

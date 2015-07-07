@@ -60,9 +60,9 @@ public class ShipHandler {
                         line = reader.readLine();
                     }
                     if(shipH.lines.size() <= maxShips){
-                        shipH.shipFile.writeString("0\n", false);
                         for (int i = shipH.lines.size(); i <= maxShips; i++) {
-                            shipH.shipFile.writeString("0\n", true);
+                            shipH.shipFile.writeString("\n0", true);
+                            shipH.lines.add("0");
                         }
                     }
                     for(int i = 0; i <= maxShips; i++){
@@ -86,7 +86,7 @@ public class ShipHandler {
                 if(shipH.lines.get(3).equals("1")){
                     shipH.shipSave.uToast = true;
                 }
-                shipH.shipFile.delete();
+                shipH.shipFile.file().deleteOnExit();
             }else if(shipH.jsonSave.exists()){
                 shipH.shipSave = json.fromJson(ShipHandler.ShipSON.class, shipH.jsonSave);
                 shipH.shipSelect = shipH.shipSave.shipSelect;
