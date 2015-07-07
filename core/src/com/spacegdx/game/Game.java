@@ -61,10 +61,7 @@ public class Game extends ApplicationAdapter {
 	@Override
 	public void create(){
 		gameSetup();
-		if(lastHighScore > 200){
-			lastHighScore = 0;
-			credits = 0;
-		}
+
 	}
 
 	@Override

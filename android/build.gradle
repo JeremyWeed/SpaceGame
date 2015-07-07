@@ -8,7 +8,7 @@ android {
         }
     }
     buildToolsVersion "22.0.1"
-    compileSdkVersion 22
+    compileSdkVersion 8
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -27,7 +27,7 @@ android {
         }
     }
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 15
         targetSdkVersion 22
         signingConfig signingConfigs.baseKey
     }
