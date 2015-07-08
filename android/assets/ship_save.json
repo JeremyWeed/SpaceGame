@@ -1,6 +1,6 @@
 {
-"uToast": false,
+"uToast": true,
 "uPower": true,
-"uTurret": true,
+"uTurret": false,
 "shipSelect": 3
 }

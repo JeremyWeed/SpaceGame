@@ -51,7 +51,10 @@ public class ShipHandler {
             shipH.shipFile = sf;
             shipH.lines = new ArrayList<String>();
             Json json = new Json();
-            if(shipH.shipFile.exists()) {
+            if(shipH.jsonSave.exists()){
+                shipH.shipSave = json.fromJson(ShipHandler.ShipSON.class, shipH.jsonSave);
+                shipH.shipSelect = shipH.shipSave.shipSelect;
+            }else if(shipH.shipFile.exists()) {
                 try {
                     BufferedReader reader = new BufferedReader(shipH.shipFile.reader());
                     String line = reader.readLine();
@@ -87,9 +90,7 @@ public class ShipHandler {
                     shipH.shipSave.uToast = true;
                 }
                 shipH.shipFile.file().deleteOnExit();
-            }else if(shipH.jsonSave.exists()){
-                shipH.shipSave = json.fromJson(ShipHandler.ShipSON.class, shipH.jsonSave);
-                shipH.shipSelect = shipH.shipSave.shipSelect;
+                shipH.shipFile.delete();
             }
         }
         return shipH;
