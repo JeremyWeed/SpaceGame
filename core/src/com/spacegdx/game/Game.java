@@ -46,7 +46,7 @@ public class Game extends ApplicationAdapter {
 	boolean dbFlag = true;
 	boolean touchdb = false;
 	boolean music = true;
-	String versionString = "1.10";
+	String versionString = "1.11";
 
 	// fun with enums!
 
