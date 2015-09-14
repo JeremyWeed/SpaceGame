@@ -16,7 +16,10 @@ import com.badlogic.gdx.utils.TimeUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-
+/**
+ * Main Class of the game
+ * @author Jeremy Weed
+ */
 public class Game extends ApplicationAdapter {
 	Texture background;
 	Texture boom;
@@ -58,12 +61,19 @@ public class Game extends ApplicationAdapter {
 	}
 
 	State state = State.MENU;
+
+	/**
+	 * game creation, class <code>gameSetup()</code>
+	 */
 	@Override
 	public void create(){
 		gameSetup();
 
 	}
 
+	/**
+	 * basic switch based render method
+	 */
 	@Override
 	public void render(){
 		switch(state){
@@ -83,6 +93,9 @@ public class Game extends ApplicationAdapter {
 
 	}
 
+	/**
+	 * Rendering method to handle the end game screen
+	 */
 	public void endRender(){
 		if(score > lastHighScore) {
 			highScore.writeString(Integer.toString(score), false);
