@@ -138,6 +138,9 @@ public class Game extends ApplicationAdapter {
 		//---------------------------------------------------------------------------------------
 	}
 
+	/**
+	 * method to render the main menu
+	 */
 	public void menuRender(){
 
 		camera.update();
@@ -201,6 +204,9 @@ public class Game extends ApplicationAdapter {
 
 	}
 
+	/**
+	 * Method to render the ship choosing menu
+	 */
 	public void shipMenuRender(){
 		camera.update();
 		sBatch.setProjectionMatrix(camera.combined);
@@ -279,6 +285,9 @@ public class Game extends ApplicationAdapter {
 		//---------------------------------------------------------------------------------------
 	}
 
+	/**
+	 * method to render the main game
+	 */
 	public void gameRender(){
 		camera.update();
 		sBatch.setProjectionMatrix(camera.combined);
@@ -322,6 +331,9 @@ public class Game extends ApplicationAdapter {
 		//-----------------------------------------------------------------------------------------
 	}
 
+	/**
+	 * method to setup the game from a cold start
+	 */
 	public void gameSetup(){
 		background = new Texture("background.png");
 		boom = new Texture("boom.png");
@@ -362,6 +374,9 @@ public class Game extends ApplicationAdapter {
 
 	}
 
+	/**
+	 * Method called when the game quits, removes items from memory
+	 */
 	@Override
 	public void dispose() {
 		background.dispose();
@@ -369,6 +384,9 @@ public class Game extends ApplicationAdapter {
 		gameTheme.dispose();
 	}
 
+	/**
+	 * Method to handle a if the app pauses or the task is switched
+	 */
 	@Override
 	public void pause(){
 		if(score > lastHighScore) {
@@ -378,11 +396,17 @@ public class Game extends ApplicationAdapter {
 		eHand.pause();
 	}
 
+	/**
+	 * resumes the game after a pause
+	 */
 	@Override
 	public void resume(){
 		eHand.resume();
 	}
 
+	/**
+	 * slowly moves the background down the screen in a loop
+	 */
 	public void iterateBackground(){
 		backgroundY -= 10 * Gdx.graphics.getDeltaTime();
 		if(backgroundY < -800){
@@ -390,10 +414,23 @@ public class Game extends ApplicationAdapter {
 		}
 	}
 
+	/**
+	 * spawns an explosion at the given location
+	 * @param x x location of the explosion
+	 * @param y y location of the explosion
+	 * @see <code>spawnBoom()</code>
+	 */
 	public static void spawnBoom(float x, float y){
 		spawnBoom(x, y, 48, 48);
 	}
 
+	/**
+	 * spawns an explosion at the given location and scaled by the given values
+	 * @param x x location of the explosion
+	 * @param y	y location of the explosion
+	 * @param width width of the explosion sprite
+	 * @param height height of the explosion sprite
+	 */
 	public static void spawnBoom(float x, float y, float width, float height){
 		Rectangle boom = new Rectangle();
 		boom.x = x - width/2;
@@ -404,6 +441,10 @@ public class Game extends ApplicationAdapter {
 		booms.add(f);
 	}
 
+	/**
+	 * iterates through the current existing explosions, and removes them if they have expired
+	 * @param booms the ArrayList of explosions to iterate through
+	 */
 	public void iterateBoom(ArrayList<Flash> booms){
 		Iterator<Flash> iter = booms.iterator();
 		while(iter.hasNext()){
@@ -414,6 +455,9 @@ public class Game extends ApplicationAdapter {
 		}
 	}
 
+	/**
+	 * resets the temporary game variables to allow for a new game to begin
+	 */
 	public void resetGame(){
 		score = 0;
 		booms = new ArrayList();
@@ -424,6 +468,9 @@ public class Game extends ApplicationAdapter {
 
 	}
 
+	/**
+	 * ends the game, and saves scores and credits
+	 */
 	public void endGame(){
 		state = State.END;
 		endExplosion.play();

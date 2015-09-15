@@ -8,6 +8,8 @@ import java.util.ArrayList;
 
 /**
  * Created by Jeremy on 5/18/2015.
+ * parent class that outlines the basic ship player
+ * @author Jeremy
  */
 public abstract class Ship {
 
@@ -17,6 +19,16 @@ public abstract class Ship {
     public Game game;
     public int price;
 
+    /**
+     * default constructor for the ship class
+     * @param t ship texture
+     * @param width the width of the ship texture
+     * @param height the height of the ship texture
+     * @param recX the x length of the ship hitbox rectangle
+     * @param recY the y length of the ship hitbox rectangle
+     * @param scale amount to scale the ship and hitbox in size
+     * @param game reference to the currently executing game
+     */
     public Ship(Texture t, float width, float height, float recX, float recY, float scale, Game game){
         this.t = t;
         this.width = width * scale;
