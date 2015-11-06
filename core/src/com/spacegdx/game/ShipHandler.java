@@ -34,17 +34,31 @@ public class ShipHandler {
     FileHandle jsonSave = Gdx.files.local("ship_save.json");
     ShipSON shipSave = new ShipSON();
 
+    /**
+     * internal class for saving ship unlocks with <code>JSON</code>
+     */
     private static class ShipSON{
         boolean uToast = false, uPower = false, uTurret = false;
         int shipSelect = 0;
     }
 
+    /**
+     * private constructor, because this class should only exist once
+     * @param game the game to which the handler should reference
+     */
     private ShipHandler(Game game){
         this.game = game;
         currentShip = new BasicShip(game);
         playerShip = new BasicShip(game);
     }
 
+    /**
+     * gets the currently running shiphandler, and if one is not currently running, it creates one.
+     * @param game the game which the handler should reference
+     * @param sf <code>FileHandle</code> that represents the <code>JSON</code> file where the ship unlock state is saved
+     * @param forceReload boolean to determine if the handler should preform a complete reload and reconstruction
+     * @return the currently running shipHandler
+     */
     public static ShipHandler getHandler(Game game, FileHandle sf, boolean forceReload){
         if(shipH == null || forceReload){
             shipH = new ShipHandler(game);
